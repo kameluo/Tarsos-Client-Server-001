@@ -131,7 +131,7 @@ public class udpserver {
 			previouscase=clientcase;
 			}	
 		}else{
-			System.out.println("Client Class isnt Disconnected");
+			System.out.println("Client Class is Disconnected");
 		}
 		
 	}
