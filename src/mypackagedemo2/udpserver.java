@@ -9,7 +9,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Scanner;
-import java.util.Timer;
 
 import com.googlecode.javacv.CanvasFrame;
 import com.googlecode.javacv.FrameGrabber.Exception;
@@ -20,7 +19,7 @@ public class udpserver {
 	public static void main(String[] args) throws IOException,InterruptedException,SocketException,SocketTimeoutException,IllegalArgumentException,ArrayIndexOutOfBoundsException {
 		Scanner keyboard = new Scanner(System.in);
 		DatagramSocket datagramSocket=new DatagramSocket(2000);
-		InetAddress address=InetAddress.getByName("192.168.23.174");
+		InetAddress address=InetAddress.getByName("192.168.23.174");//to get the name of the PC which his IP is X.X.X.X
 		
 		InetAddress IP=InetAddress.getLocalHost();
 		String hostname=IP.getHostName();

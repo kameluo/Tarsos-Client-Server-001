@@ -35,9 +35,9 @@ public class udpclient {
 
 	public static void main(String args[]) throws LineUnavailableException, IOException,FileNotFoundException  {
 		DatagramSocket datagramSocket=new DatagramSocket();//creating the socket;
-		InetAddress IP=InetAddress.getLocalHost();//to get access to the information of the local pc like the name or the IP address of it
-		String hostname=IP.getHostName();
-		String hostIPaddress=IP.getHostAddress();
+		InetAddress IP=InetAddress.getLocalHost();//to make an object of that class to be able to get the information of that PC,The current PC
+		String hostname=IP.getHostName();//to get The Name of That PC
+		String hostIPaddress=IP.getHostAddress();//to get the IP of That PC
 		int port=2000;
 		DateFormat dateformat = new SimpleDateFormat("dd/MM/yy HH:mm a");//To Set the Format of the Date
 		Date currentdate = new Date();//To Get the Current Date

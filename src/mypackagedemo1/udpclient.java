@@ -39,6 +39,7 @@ public class udpclient {
 	           
 	           if(freq > 60 && freq < 250){
 	        	   String case1="00";//Speech
+	        	   System.out.println(freq);
 	        	   String overall=hostname+" "+case1+" "+IP.getHostAddress();
 	        	   byte [] b=overall.getBytes();//Transferring the Strings to Bytes
 	        	   DatagramPacket datagramPacket=new DatagramPacket(b,b.length,IP,port);//creating the packet
@@ -49,6 +50,7 @@ public class udpclient {
 				}
 	           }else if(freq > 450 && freq < 2600){
 	        	   String case2="01";//Alarm
+	        	   System.out.println(freq);
 	        	   String overall=hostname+" "+case2+" "+IP.getHostAddress();
 	        	   byte [] b=overall.getBytes();//Transferring the Strings to Bytes
 	        	   DatagramPacket datagramPacket=new DatagramPacket(b,b.length,IP,port);//creating the packet
@@ -60,6 +62,7 @@ public class udpclient {
 				}
 	           }else{
 	        	   String case3="02";//Silence
+	        	   System.out.println(freq);
 	           		String overall=hostname+" "+case3+" "+IP.getHostAddress();
         	   		byte [] b=overall.getBytes();//Transferring the Strings to Bytes
         	   		DatagramPacket datagramPacket=new DatagramPacket(b,b.length,IP,port);//creating the packet
