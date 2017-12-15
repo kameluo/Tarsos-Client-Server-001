@@ -82,7 +82,7 @@ public class Server {
 			
 		}else{
 			//incase if we didn't receive the "CRQ" we will send "500"
-			String Disconnect="500";
+			String Disconnect="555";
 			byte [] byteDisconnect=Disconnect.getBytes();//Transferring the Strings to Bytes
 			DatagramPacket datagramPacketDisconnect=new DatagramPacket(byteDisconnect,byteDisconnect.length,clientIP,portunicast);//creating the packet
 			datagramSocketunicast.send(datagramPacketDisconnect);//send the packet
