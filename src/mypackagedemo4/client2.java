@@ -10,12 +10,12 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Stack;
 
 import javax.sound.sampled.LineUnavailableException;
 
@@ -27,7 +27,7 @@ import core.be.tarsos.dsp.pitch.PitchProcessor;
 import core.be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm;
 import jvm.be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 
-public class Client {
+public class client2 {
 
 	public static void main(String[] args) throws IOException, LineUnavailableException {
 		
@@ -37,7 +37,11 @@ public class Client {
 		
 		//Creating The Log File For The Client Side
 		File file=new File("logclient1.txt");
-
+	
+		String oldState= "SND2";
+		boolean sending= false;
+		int client_state=0; // waiting for connection
+		
 		//Creating an object from the FileWriter Class to be able to write in it the states
 		FileWriter filewriter=new FileWriter(file,true);//the FileWriter contains 2 arguments,first one is for the file name which is in this case is "file" and the second argument is boolean to allow us to write at the end of the file rather than overwrite and lose our previous data
 		
@@ -46,6 +50,7 @@ public class Client {
 			
 			//initial state Silence,to avoid the error when we read the last state before we write in the file for the first time,check it (text.length()-1))
 			filewriter.write(dateformat.format(currentdate)+" SND2"+"\r\n");// SND2 stands for Silence
+		
 			
 			filewriter.flush();
 			filewriter.close();
@@ -56,23 +61,16 @@ public class Client {
 		MulticastSocket multicastSocket=new MulticastSocket(3456);//opening a multicast socket port
 		multicastSocket.joinGroup(group);//subscribing the multicast IP address to  that socket port,listening to the messages of that IP address from that port
 		int portmulticast=3456;
-	
-		int client_state=0; // waiting for connection
-		String oldState= "SND2";
-		boolean sending= false;
 		
-		do {
-	
+		//do {
+		
 		//Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means that the Server is logging in and waiting for receiving the messages from the sender"clients")
+		//Compare if you are receiving SERVERon ---WHILE LOOP
 		byte[] buffer=new byte[100];
 		DatagramPacket datagramPacketmMlticastMessage=new DatagramPacket(buffer,buffer.length);
 		multicastSocket.receive(datagramPacketmMlticastMessage);
 		String messageReceivedMulticast=new String(buffer);
 		System.out.println(messageReceivedMulticast);
-		//Compare if you are receiving SERVERon ---WHILE LOOP
-		if(messageReceivedMulticast.equals(new String("SEVRON"))){
-			client_state=2;
-		}
 		InetAddress serverIP=datagramPacketmMlticastMessage.getAddress();//from the multicast message we will get the IP of The Server to use it when we send the unicast packet
 		
 		//Creating an Object for Sending the Unicast messages for each sound case
@@ -95,8 +93,9 @@ public class Client {
 		//if The Client Receives "200" it means that the Server is Ready to get Receives the Sound States
 		if(messagerecived.equals("200")){
 			//Sound Detecting Part
-			client_state=1; //sending data
-			while(client_state==1){
+			client_state=1; // sending data
+			while(client_state== 1){
+			
 							//creating a memory of array of 3 elements size
 							String[] memory=new String[3];
 							
@@ -118,64 +117,102 @@ public class Client {
 						        	   currentState="SND2";
 						           }
 						           try {
-						        	   if (!currentState.equals(new String(oldState))){
-											oldState=currentState;
-											sending=true;
-						        	   }	
-						        	   int previous_message=0;
-						        	   String memorystring;
-						        	   while(!serverIP.isReachable(2000)){//not sure about it
-						        		   //Inserting The Latest 3 Sound States In The Memory Array
-											for(int x=0;x<memory.length;x++){
-												if(x!=memory.length){
-													memory[x]=oldState;//1-->>the state will be the same??
-												}
-											//converting the memory elements into a One String
-											memorystring=String.join(",",memory);
-											previous_message++;
-											}
-										}//The End of unReachable WHILE loop
 						        	   
-										if (sending){
-										//Sending The Current State to The Server Side
-										String sendcurrentState=currentState;
-										byte [] b1=sendcurrentState.getBytes();//Transferring the Strings to Bytes
-										DatagramPacket datagramPacketForUniCast=new DatagramPacket(b1,b1.length,serverIP,portunicast);
-										datagramSocketForUniCast.send(datagramPacketForUniCast);//send the packet
-										
-										//After Comparing We Will Write in The log file of the client side 
-										FileWriter filewriterStates=new FileWriter(file,true);
-										filewriterStates.write(dateformat.format(currentdate)+currentState+"\r\n");
-										filewriterStates.flush();
-										filewriterStates.close();
-										}
-										//if the "previous_message" is more than zero we will send the memory array
-										if(previous_message!= 0){
-											//Repeat Sending The Memory 3 Times 
-											for(int times=1;times<=3;times++){										
-												byte [] bMemory=memorystring.getBytes();
-												DatagramPacket datagramPacketForUniCastRepeat=new DatagramPacket(bMemory,bMemory.length,serverIP,portunicast);
-												datagramSocketForUniCast.send(datagramPacketForUniCastRepeat);
-											}//end of the FOR loop
-										}
-										//Receiving the responded message after sending the Current state Message
-										datagramSocketForUniCast.setSoTimeout(2000);
-											try {
+						        	   /*
+									//first we will check"read" the last Word in the log file of the client Log File to not repeat it again,if it is different we will write it 
+						        	   		//Reading The Whole File	
+						        	   		FileReader fileName=new FileReader("C:\\Users\\Ahmed Kamel\\workspace\\testcam\\logclient1.txt");
+						        	   		BufferedReader reader=new BufferedReader(fileName);
+											String text="";
+											String line=reader.readLine();
+											
+											
+											while(line != null){
+												text += line;
+												line=reader.readLine();
+											}
+											//checking the last letter in the log file,if its not the "0" (stands for "SND0"-->Speech)
+											String lastWord=null;
+											if(text.charAt(text.length()-1) == '0'){
+												lastWord="SND0";//(stands for "SND0"-->Speech)
+											}else if(text.charAt(text.length()-1) == '1'){
+												lastWord="SND1";//(stands for "SND1"-->Alarm)
+											}else if(text.charAt(text.length()-1) == '2'){
+												lastWord="SND2";//(stands for "SND1"-->Silence)
+											}
+											
+											*/
+											if (!currentState.equals(oldState)){
+												oldState=currentState;
+												sending=true;
+											}						
+											/*
+											//Comparing If The Last Word In The Log File Of The Client Is The Same Like The Current State
+											if(!currentState.equals(lastWord)){
+														//Inserting The Latest 3 Sound States In The Memory
+														for(int x=0;x<memory.length;x++){
+															if(x!=memory.length){
+																memory[x]=currentState;
+																//if the array is full
+																}else if(x==memory.length){
+																	String memorySecondElement=memory[1];
+																	String memoryThirdElement=memory[2];
+																	memory[0]=memorySecondElement;
+																	memory[1]=memoryThirdElement;
+																	memory[2]=currentState;
+															}
+														}//The End Of The Memory	
+												//After Comparing We Will Write in The log file of the client side 
+												FileWriter filewriterStates=new FileWriter(file,true);
+												filewriterStates.write(dateformat.format(currentdate)+currentState+"\r\n");
+												filewriterStates.flush();
+												filewriterStates.close();
+												*/
+												
+												int previous_message=0;
+											
+												if (sending){
+												//Sending The Current State to The Server Side
+												String sendcurrentState=currentState;
+												byte [] b1=sendcurrentState.getBytes();//Transferring the Strings to Bytes
+												if (previous_message!= 0){
+													
+													
+													}
+												
+												DatagramPacket datagramPacketForUniCast=new DatagramPacket(b1,b1.length,serverIP,portunicast);
+												datagramSocketForUniCast.send(datagramPacketForUniCast);//send the packet
+												
+												//Receiving the responded message after sending the Current state Message
 												byte [] b2=new byte[100];
+												DatagramSocket datagramSocket=new DatagramSocket(portunicast);
 												DatagramPacket datagramPacketunicastmessage=new DatagramPacket(b2, b2.length);
-												datagramSocketForUniCast.receive(datagramPacketunicastmessage);
+												datagramSocket.receive(datagramPacketunicastmessage);
 												String messagerecived=new String(b2);
-												if(!messagerecived.equals(new String("200"))){
+												if(!messagerecived.equals("200")){
+													
+												client_state=2;
+												//get out of the loop
+													
 													//Send Again The Current State to The Server Side
-													String sendcurrentState=currentState;
+													String sendcurrentStateRepeat=currentState;
 													byte [] bRepeat=sendcurrentState.getBytes();
 													DatagramPacket datagramPacketForUniCastRepeat=new DatagramPacket(bRepeat,bRepeat.length,serverIP,portunicast);
 													datagramSocketForUniCast.send(datagramPacketForUniCastRepeat);
 												}
-											} catch (SocketTimeoutException socketerror) {
-												client_state=2;//close and get out of the loop
-											}	
-						        	   }catch (FileNotFoundException e) {
+												//while(messagerecived==null){/////////////
+												while(!serverIP.isReachable(2000)){//not sure about it
+													//Repeat Sending The Memory 3 Times 
+													for(int times=1;times<=3;times++){
+													//converting the memory elements into a One String
+													String memorystring=String.join(",",memory);
+													byte [] bMemory=memorystring.getBytes();
+													DatagramPacket datagramPacketForUniCastRepeat=new DatagramPacket(bMemory,bMemory.length,serverIP,portunicast);
+													datagramSocketForUniCast.send(datagramPacketForUniCastRepeat);
+													}//end of the FOR loop
+												}//The End of WHILE loop	
+											}//The End of the Comparing IF condition	
+									}catch (FileNotFoundException e) {
 										e.printStackTrace();
 									}catch (IOException e) {
 										e.printStackTrace();
@@ -185,19 +222,18 @@ public class Client {
 						    AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(44100,16384, 0);
 						    adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 44100, 16384, handler));
 						    adp.run(); 
-						}//the end of the while loop
+							}
+						}//the end of the infinite while loop
+		    
 		  //if The Client Receives "200" it means that the Server is Ready to get Receives the Sound States	
-		}else if(messagerecived.equals(new String("500"))){
+		}else if(messagerecived.equals("500")){
 			// what are we going to do here?
-			client_state=0;//waiting for connection 
-			//Sending a "DRQ" message to the receiver like an acknowledgement
-			String disconnectRequestMessage="DRQ";
-			byte [] bytedisconnectRequestMessage=disconnectRequestMessage.getBytes();//Transferring the Strings to Bytes
-			DatagramPacket datagramPacketdisconnectRequestMessage=new DatagramPacket(bytedisconnectRequestMessage,bytedisconnectRequestMessage.length,serverIP,portunicast);//creating the packet
-			datagramSocketForUniCast.send(datagramPacketForUniCastCRQ);//send the packet
-		}else if(messagerecived.equals(new String("555"))){
+			//send (drq)message
+			client_State=0;
+			
+		}else if(messagerecived.equals("555")){
+			client_State=2;
 			//"555" means that the server wants to disconnect
-			client_state=2;//close and get out of the loop
 			//close and disconnect the datagramSocketForUniCast
 			datagramSocketForUniCast.close();
 			datagramSocketForUniCast.disconnect();
@@ -205,8 +241,11 @@ public class Client {
 			multicastSocket.leaveGroup(group);
 		}//The End of The IF/Else condition
 		
-		}while (client_state!=2);
+		
 	    
-	}
+		//}while (client_State!=2)
+			
+		
+		}
 
 }
