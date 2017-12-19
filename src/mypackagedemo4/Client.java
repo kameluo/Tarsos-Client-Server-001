@@ -28,10 +28,24 @@ import core.be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm;
 import jvm.be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 
 public class Client {
+	
+	private int client_state; // waiting for connection
+	private String oldState;
+	private boolean sending;
+	
+	private void Client(){
+		client_state=0; // waiting for connection
+		oldState= "SND2";
+		sending= false;
+		
+	}
 
 	public static void main(String[] args) throws IOException, LineUnavailableException {
 		
 		//Constructing the date
+		
+		Client client1= new Client();
+		
 		DateFormat dateformat = new SimpleDateFormat("dd/MM/yy HH:mm a");//To Set the Format of the Date.
 		Date currentdate = new Date();//To Get the Current Date.
 		
@@ -57,12 +71,9 @@ public class Client {
 		multicastSocket.joinGroup(group);//subscribing the multicast IP address to  that socket port,listening to the messages of that IP address from that port
 		int portmulticast=3456;
 	
-		int client_state=0; // waiting for connection
-		String oldState= "SND2";
-		boolean sending= false;
-		
+
 		do {
-	
+			
 		//Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means that the Server is logging in and waiting for receiving the messages from the sender"clients")
 		byte[] buffer=new byte[100];
 		DatagramPacket datagramPacketmMlticastMessage=new DatagramPacket(buffer,buffer.length);
@@ -71,7 +82,7 @@ public class Client {
 		System.out.println(messageReceivedMulticast);
 		//Compare if you are receiving SERVERon ---WHILE LOOP
 		if(messageReceivedMulticast.equals(new String("SEVRON"))){
-			client_state=2;
+			client1.client_state=2;
 		}
 		InetAddress serverIP=datagramPacketmMlticastMessage.getAddress();//from the multicast message we will get the IP of The Server to use it when we send the unicast packet
 		
@@ -95,8 +106,8 @@ public class Client {
 		//if The Client Receives "200" it means that the Server is Ready to get Receives the Sound States
 		if(messagerecived.equals("200")){
 			//Sound Detecting Part
-			client_state=1; //sending data
-			while(client_state==1){
+			client1.client_state=1; //sending data
+			while(client1.client_state==1){
 							//creating a memory of array of 3 elements size
 							String[] memory=new String[3];
 							
@@ -118,17 +129,17 @@ public class Client {
 						        	   currentState="SND2";
 						           }
 						           try {
-						        	   if (!currentState.equals(new String(oldState))){
-											oldState=currentState;
-											sending=true;
+						        	   if (!currentState.equals(new String(client1.oldState))){
+						        		   client1.oldState=currentState;
+						        		   client1.sending=true;
 						        	   }	
 						        	   int previous_message=0;
-						        	   String memorystring;
+						        	   String memorystring ="";
 						        	   while(!serverIP.isReachable(2000)){//not sure about it
 						        		   //Inserting The Latest 3 Sound States In The Memory Array
 											for(int x=0;x<memory.length;x++){
 												if(x!=memory.length){
-													memory[x]=oldState;//1-->>the state will be the same??
+													memory[x]=client1.oldState;
 												}
 											//converting the memory elements into a One String
 											memorystring=String.join(",",memory);
@@ -136,7 +147,7 @@ public class Client {
 											}
 										}//The End of unReachable WHILE loop
 						        	   
-										if (sending){
+										if (client1.sending){
 										//Sending The Current State to The Server Side
 										String sendcurrentState=currentState;
 										byte [] b1=sendcurrentState.getBytes();//Transferring the Strings to Bytes
@@ -173,11 +184,12 @@ public class Client {
 													datagramSocketForUniCast.send(datagramPacketForUniCastRepeat);
 												}
 											} catch (SocketTimeoutException socketerror) {
-												client_state=2;//close and get out of the loop
+												client1.client_state=2;//close and get out of the loop
 											}	
 						        	   }catch (FileNotFoundException e) {
 										e.printStackTrace();
-									}catch (IOException e) {
+									}
+								catch (IOException e) {
 										e.printStackTrace();
 									} 
 						        }//The End of The "handlePitch" Override method in The PitchDetectionHandler-handler Object Class
@@ -189,7 +201,7 @@ public class Client {
 		  //if The Client Receives "200" it means that the Server is Ready to get Receives the Sound States	
 		}else if(messagerecived.equals(new String("500"))){
 			// what are we going to do here?
-			client_state=0;//waiting for connection 
+			client1.client_state=0;//waiting for connection 
 			//Sending a "DRQ" message to the receiver like an acknowledgement
 			String disconnectRequestMessage="DRQ";
 			byte [] bytedisconnectRequestMessage=disconnectRequestMessage.getBytes();//Transferring the Strings to Bytes
@@ -197,7 +209,7 @@ public class Client {
 			datagramSocketForUniCast.send(datagramPacketForUniCastCRQ);//send the packet
 		}else if(messagerecived.equals(new String("555"))){
 			//"555" means that the server wants to disconnect
-			client_state=2;//close and get out of the loop
+			client1.client_state=2;//close and get out of the loop
 			//close and disconnect the datagramSocketForUniCast
 			datagramSocketForUniCast.close();
 			datagramSocketForUniCast.disconnect();
@@ -205,7 +217,7 @@ public class Client {
 			multicastSocket.leaveGroup(group);
 		}//The End of The IF/Else condition
 		
-		}while (client_state!=2);
+		}while (client1.client_state!=2);
 	    
 	}
 
