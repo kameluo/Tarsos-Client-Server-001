@@ -11,10 +11,13 @@ import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.lang.Character;
 
 public class Server {
 
 	public static void main(String[] args) throws IOException {
+		
+		int serverstate;//flag
 		
 		//Constructing the date
 		DateFormat dateformat = new SimpleDateFormat("dd/MM/yy HH:mm a");//To Set the Format of the Date
@@ -31,80 +34,86 @@ public class Server {
 		multicastSocket.joinGroup(group);//subscribing the multicast IP address to  that socket port,listening to the messages of that IP address from that port
 		int portmulticast=3456;
 		
-		//Sending the log In message to the whole group by a multicast datagram object
+		//Sending the log In message to the whole group by a multicast datagram object,(-->datagrampacketsentmulticastmessage1)
 		String loginMessage="SEVRON";
-		DatagramPacket datagrampacketsentmulticastmessage=new DatagramPacket(loginMessage.getBytes(),loginMessage.length(),group,portmulticast);
-		multicastSocket.send(datagrampacketsentmulticastmessage);
+		DatagramPacket datagrampacketsentmulticastmessage1=new DatagramPacket(loginMessage.getBytes(),loginMessage.length(),group,portmulticast);
+		multicastSocket.send(datagrampacketsentmulticastmessage1);
 		
-		//Receiving the "CRQ" message from the Client by a unicast datagram object
+		//Receiving the "CRQ" message from the Client by a unicast datagram object,(-->datagrampacketsentmulticastmessage2)
 		int portunicast=2000;
-		byte [] b=new byte[100];
-		DatagramSocket datagramSocketunicast=new DatagramSocket(portunicast);//
-		DatagramPacket datagramPacketunicastmessage=new DatagramPacket(b, b.length);
-		datagramSocketunicast.receive(datagramPacketunicastmessage);
-		InetAddress clientIP=datagramPacketunicastmessage.getAddress();//getting the IP of the client side
-		String messagerecived=new String (b);
-		System.out.println(messagerecived);
+		byte [] b2=new byte[100];
+		DatagramSocket datagramSocketunicast=new DatagramSocket(portunicast);//creating an object from the datasocket class to send all the unicast packages through it
+		DatagramPacket datagramPacketunicastmessage2=new DatagramPacket(b2, b2.length);
+		datagramSocketunicast.receive(datagramPacketunicastmessage2);
+		InetAddress clientIP=datagramPacketunicastmessage2.getAddress();//getting the IP of the client side
+		String messagereceived=new String (b2);
+		System.out.println(messagereceived);
 		
-		char x= messagerecived.charAt(0);
-		System.out.println(x);
-		//if(messagerecived.equals("CRQ")){
-		if(x=='C'){
-			//Sending the "200" means that the server has received the "CRQ" message unicast datagram object
+		char firstCahracterReceivedMessage= messagereceived.charAt(0);
+		String xsxs=String.valueOf(firstCahracterReceivedMessage);
+		System.out.println(firstCahracterReceivedMessage);
+		//if(messagereceived.equals(new String("CRQ"))){
+		if(firstCahracterReceivedMessage=='C'){
+			//Sending the "200" means that the server has received the "CRQ" message unicast datagram object,(-->datagrampacketsentmulticastmessage3)
 			String acknowledgement="200";
 			byte [] byteAcknowledgement=acknowledgement.getBytes();//Transferring the Strings to Bytes
-			DatagramPacket datagramPacketUnicast=new DatagramPacket(byteAcknowledgement,byteAcknowledgement.length,clientIP,portunicast);//creating the packet
-			datagramSocketunicast.send(datagramPacketUnicast);//send the packet
+			DatagramPacket datagramPacketUnicast3=new DatagramPacket(byteAcknowledgement,byteAcknowledgement.length,clientIP,portunicast);//creating the packet
+			datagramSocketunicast.send(datagramPacketUnicast3);//send the packet
+			serverstate=1;//the server is ready to receive 
 			while(true){
-				//Receiving the Sound States
+				if(serverstate == 1){                             }
+				//Receiving the Sound States,(-->datagramPacketSoundStates4)
 				byte [] bsoundstates=new byte[100];
-				DatagramPacket datagramPacketSoundStates=new DatagramPacket(bsoundstates, bsoundstates.length);
-				datagramSocketunicast.receive(datagramPacketSoundStates);
-				String messagerecieved=new String(bsoundstates);
-				System.out.println(messagerecieved);
+				DatagramPacket datagramPacketSoundStates4=new DatagramPacket(bsoundstates, bsoundstates.length);
+				datagramSocketunicast.receive(datagramPacketSoundStates4);
+				String soundStateMessageRecieved=new String(bsoundstates);
+				System.out.println(soundStateMessageRecieved);
 				
-				//Sending Acknowledgment to the client to let him know that the server received the Sound State Message
+				//Sending Acknowledgment to the client to let him know that the server received the Sound State Message,(-->datagramPacketUnicastSoundState5)
 				String acknowledgementSoundState="200";
 				byte [] byteAcknowledgementSoundState=acknowledgementSoundState.getBytes();//Transferring the Strings to Bytes
-				DatagramPacket datagramPacketUnicastSoundState=new DatagramPacket(byteAcknowledgementSoundState,byteAcknowledgementSoundState.length,clientIP,portunicast);//creating the packet
-				datagramSocketunicast.send(datagramPacketUnicastSoundState);//send the packet
+				DatagramPacket datagramPacketUnicastSoundState5=new DatagramPacket(byteAcknowledgementSoundState,byteAcknowledgementSoundState.length,clientIP,portunicast);//creating the packet
+				datagramSocketunicast.send(datagramPacketUnicastSoundState5);//send the packet
 				//Identifying the received message
-				String state=null;
-					if(messagerecieved.charAt(3)=='0'){
-						state="Speech";//Speech=SND0
-					}else if(messagerecieved.charAt(3)=='1'){
-						state="Alarm";//Alarm=SND1
-					}else if(messagerecieved.charAt(3)=='2'){
-						state="Silence";//Silence==SND2
-					}else if(messagerecieved.charAt(2)=='Q'){
+				String soundState="";
+					if(soundStateMessageRecieved.charAt(3)=='0'){
+						soundState="Speech";//Speech=SND0
+						System.out.println(soundState);
+					}else if(soundStateMessageRecieved.charAt(3)=='1'){
+						soundState="Alarm";//Alarm=SND1
+						System.out.println(soundState);
+					}else if(soundStateMessageRecieved.charAt(3)=='2'){
+						soundState="Silence";//Silence==SND2
+						System.out.println(soundState);
+					}else if(soundStateMessageRecieved.charAt(2)=='Q'){
 						//Receiving "DRQ" from the client means that he will disconnect
 						//close and disconnect the datagramSocketForUniCast
 						datagramSocketunicast.close();
 						datagramSocketunicast.disconnect();
 						//leave the multicastSocket
 						multicastSocket.leaveGroup(group);
-						break;//get out of the while loop
+						serverstate=0;
 					}else{
-						//if the client sends something else rather than the sound states or the disconnect message we will send him "500" message
+						//if the client sends something else rather than the sound states or the disconnect message we will send him "500" message,(-->datagramPacketUnicastunknownCommandMessage6)
 						System.out.println("UnKnown Command !!!");
 						String unknownCommandMessage="500";
 						byte [] byteunknownCommandMessage=unknownCommandMessage.getBytes();//Transferring the Strings to Bytes
-						DatagramPacket datagramPacketUnicastunknownCommandMessage=new DatagramPacket(byteunknownCommandMessage,byteunknownCommandMessage.length,clientIP,portunicast);//creating the packet
-						datagramSocketunicast.send(datagramPacketUnicastunknownCommandMessage);//send the packet
-						
+						DatagramPacket datagramPacketUnicastunknownCommandMessage6=new DatagramPacket(byteunknownCommandMessage,byteunknownCommandMessage.length,clientIP,portunicast);//creating the packet
+						datagramSocketunicast.send(datagramPacketUnicastunknownCommandMessage6);//send the packet
 					}
 				//String Contains the received sound state,the date of receiving it and the IP of the client
-				String currentState=dateformat.format(currentdate)+" "+datagramPacketSoundStates.getAddress()+" "+state;
+				String currentState=dateformat.format(currentdate)+" "+datagramPacketUnicastSoundState5.getAddress()+" "+soundState;
 	
 				//Write the received state in The Log File Of The Server
 				FileWriter fileWriterSoundStates=new FileWriter(file,true);
 				fileWriterSoundStates.write(currentState+"\r\n");
 				fileWriterSoundStates.flush();
 				fileWriterSoundStates.close();
-			}
+			}//the end of the infinite while loop
 			
 		}else{
-			//incase if we didn't receive the "CRQ" we will send "500"
+			//incase if we didn't receive the "CRQ" we will send "500",,(-->datagramPacketUnicastunknownCommandMessage7)
+			serverstate=0;
 			String Disconnect="555";
 			byte [] byteDisconnect=Disconnect.getBytes();//Transferring the Strings to Bytes
 			DatagramPacket datagramPacketDisconnect=new DatagramPacket(byteDisconnect,byteDisconnect.length,clientIP,portunicast);//creating the packet
