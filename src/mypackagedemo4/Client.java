@@ -27,7 +27,7 @@ import core.be.tarsos.dsp.pitch.PitchProcessor;
 import core.be.tarsos.dsp.pitch.PitchProcessor.PitchEstimationAlgorithm;
 import jvm.be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 
-public class Client {
+public class Client implements clientInterface{
 	
 	private int client_state; // waiting for connection
 	private String oldState;
@@ -56,11 +56,12 @@ public class Client {
 		
 		if(!file.exists()){//checking if the file exists or not,if not it will construct it.
 			file.createNewFile();
-			
+			/*
 			//Initial state Silence,to avoid the error when we read the last state before we write in the file for the first time,check it (text.length()-1))
 			filewriter.write(dateformat.format(currentdate)+" SND2"+"\r\n");// SND2 stands for Silence
 			filewriter.flush();
 			filewriter.close();
+			*/
 		}
 		
 		//Creating an Object for Sending the Multicast messages
@@ -79,9 +80,11 @@ public class Client {
 		System.out.println(messageReceivedMulticast);
 		
 		//Compare if you are receiving SERVERon ---WHILE LOOP
-		if(!messageReceivedMulticast.equals(new String("SEVRON"))){
-			client1.client_state=2;
+		if(!messageReceivedMulticast.equals(serverON)){
+			client1.client_state=2;//"client_state=2" means stop sending data to the server
 		}
+		//do {
+			
 		//getting the ip of the server side to use it when we send him unicast datagram socket
 		InetAddress serverIP=datagramPacketmMlticastMessage1.getAddress();//from the multicast message we will get the IP of The Server to use it when we send the unicast packet
 		
@@ -90,24 +93,23 @@ public class Client {
 		DatagramSocket datagramSocketForUniCast=new DatagramSocket();//creating the socket;
 		int portunicast=2000;
 				
-		//Sending a "CRQ" message to the receiver like an acknowledgement,(-->datagramPacketForUniCastCRQ2)
-		String acknowledgementMessage="CRQ";
+		//Sending a "acknowledgementMessage" message to the receiver like an acknowledgement,(-->datagramPacketForUniCastCRQ2)
 		byte [] byteAcknowledgementMessage2=acknowledgementMessage.getBytes();//Transferring the Strings to Bytes
 		DatagramPacket datagramPacketForUniCastCRQ2=new DatagramPacket(byteAcknowledgementMessage2,byteAcknowledgementMessage2.length,serverIP,portunicast);//creating the packet
 		datagramSocketForUniCast.send(datagramPacketForUniCastCRQ2);//send the packet
 		
-		//Receiving the responded message after sending the "CRQ" Message,(-->datagramPacketForUniCastCRQResponse3)
+		//Receiving the responded message after sending the "acknowledgementMessage" Message,(-->datagramPacketForUniCastCRQResponse3)
 		byte [] byteAcknowledgementMessageResponse3=new byte[100];
 		DatagramPacket datagramPacketForUniCastCRQResponse3=new DatagramPacket(byteAcknowledgementMessageResponse3, byteAcknowledgementMessageResponse3.length);
 		datagramSocketForUniCast.receive(datagramPacketForUniCastCRQResponse3);
 		String messagerecived=new String(byteAcknowledgementMessageResponse3);
-		System.out.println(messagerecived);
 		
 		do {
-		//if The Client Receives "200" it means that the Server is Ready to get Receives the Sound States
-		if(messagerecived.equals(new String("200"))){
+			
+		//if The Client Receives "readyToReceive" it means that the Server is Ready to get Receives the Sound States
+		if(messagerecived.contains(readyToReceive)){
 			//Sound Detecting Part
-			client1.client_state=1; //sending data
+			client1.client_state=1; //"client_state=1"means that the server is ready for sending data
 			while(client1.client_state==1){
 							//creating a memory of array of 3 elements size
 							String[] memory=new String[3];
@@ -118,7 +120,7 @@ public class Client {
 						           float freq=pitchDetectionResult.getPitch();
 						           System.out.println(freq);
 						           
-						           String currentState;
+						           String currentState="";
 						           //if condition for detecting  the Speech
 						           if(freq > 60 && freq < 250){
 						        	   currentState="SND0";
@@ -131,7 +133,7 @@ public class Client {
 						           }
 						           try {
 						        	   //checking if the current state is the same like the old state or not
-						        	   if (!currentState.equals(new String(client1.oldState))){
+						        	   if (!currentState.equals(client1.oldState)){
 						        		   client1.oldState=currentState;
 						        		   client1.sending=true;
 						        	   }	
@@ -155,7 +157,7 @@ public class Client {
 										byte [] b4=sendcurrentState.getBytes();//Transferring the Strings to Bytes
 										DatagramPacket datagramPacketForUniCastSoundState4=new DatagramPacket(b4,b4.length,serverIP,portunicast);
 										datagramSocketForUniCast.send(datagramPacketForUniCastSoundState4);//send the packet
-										
+										System.out.println(currentState);
 										//After Comparing We Will Write in The log file of the client side 
 										filewriter.write(dateformat.format(currentdate)+" "+currentState+"\r\n");
 										filewriter.flush();
@@ -177,7 +179,7 @@ public class Client {
 												DatagramPacket datagramPacketunicastmessage5=new DatagramPacket(b5, b5.length);
 												datagramSocketForUniCast.receive(datagramPacketunicastmessage5);
 												String messagerecived2=new String(b5);
-												if(!messagerecived2.equals(new String("200"))){
+												if(!messagerecived2.equals(readyToReceive)){
 													//Send Again The Current State to The Server Side,(-->datagramPacketForUniCastRepeat6)
 													String sendcurrentState=currentState;
 													byte [] bRepeat6=sendcurrentState.getBytes();
@@ -198,18 +200,16 @@ public class Client {
 						    AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(44100,16384, 0);
 						    adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 44100, 16384, handler));
 						    adp.run(); 
-						}//the end of the while loop
-		  //if The Client Receives "200" it means that the Server is Ready to get Receives the Sound States	
+						}//--------------------------------------------------check here
 		}else if(messagerecived.equals(new String("500"))){
 			// what are we going to do here?
 			client1.client_state=0;//waiting for connection 
-			//Sending a "DRQ" message to the receiver like an acknowledgement,(-->datagramPacketdisconnectRequestMessage7)
-			String disconnectRequestMessage="DRQ";
+			//Sending a "disconnectRequestMessage" message to the server like an acknowledgement,(-->datagramPacketdisconnectRequestMessage7),check the clientInterface
 			byte [] bytedisconnectRequestMessage7=disconnectRequestMessage.getBytes();//Transferring the Strings to Bytes
 			DatagramPacket datagramPacketdisconnectRequestMessage7=new DatagramPacket(bytedisconnectRequestMessage7,bytedisconnectRequestMessage7.length,serverIP,portunicast);//creating the packet
 			datagramSocketForUniCast.send(datagramPacketdisconnectRequestMessage7);//send the packet
-		}else if(messagerecived.equals(new String("555"))){
-			//"555" means that the server wants to disconnect
+		}else if(messagerecived.equals(serverWantsDiconnect)){//"555"message
+			//"serverWantsDiconnect" means that the server wants to disconnect
 			client1.client_state=2;//close and get out of the loop
 			//close and disconnect the datagramSocketForUniCast
 			datagramSocketForUniCast.close();

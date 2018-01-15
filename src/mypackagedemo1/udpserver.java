@@ -38,7 +38,7 @@ public class udpserver {
 			String clientname=messageparts[0];
 			String clientcase=messageparts[1];
 			String IP=messageparts[2];
-			System.out.println(IP);
+			//System.out.println(IP);
 			
 			Character letter=clientcase.charAt(1);
 			

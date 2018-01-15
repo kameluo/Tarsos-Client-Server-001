@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
@@ -26,7 +27,8 @@ public class Server {
 		//creating a log file for the receiver side
 		File file=new File("logserver1.txt");
 		if(!file.exists()){
-			file.createNewFile();}
+			file.createNewFile();
+			}
 		
 		//First step is to send a multicast message for all the clients
 		InetAddress group=InetAddress.getByName("225.4.5.6");//creating a multicast IP address
@@ -39,6 +41,8 @@ public class Server {
 		DatagramPacket datagrampacketsentmulticastmessage1=new DatagramPacket(loginMessage.getBytes(),loginMessage.length(),group,portmulticast);
 		multicastSocket.send(datagrampacketsentmulticastmessage1);
 		
+		
+		
 		//Receiving the "CRQ" message from the Client by a unicast datagram object,(-->datagrampacketsentmulticastmessage2)
 		int portunicast=2000;
 		byte [] b2=new byte[100];
@@ -46,14 +50,16 @@ public class Server {
 		DatagramPacket datagramPacketunicastmessage2=new DatagramPacket(b2, b2.length);
 		datagramSocketunicast.receive(datagramPacketunicastmessage2);
 		InetAddress clientIP=datagramPacketunicastmessage2.getAddress();//getting the IP of the client side
+		b2=datagramPacketunicastmessage2.getData();
 		String messagereceived=new String (b2);
 		System.out.println(messagereceived);
-		
+		String compare=new String("CRQ");
 		char firstCahracterReceivedMessage= messagereceived.charAt(0);
-		String xsxs=String.valueOf(firstCahracterReceivedMessage);
-		System.out.println(firstCahracterReceivedMessage);
-		//if(messagereceived.equals(new String("CRQ"))){
-		if(firstCahracterReceivedMessage=='C'){
+		System.out.println("outt the if condition");
+		//if(messagereceived.equals(compare)){
+		if(messagereceived.contains("R")){
+			
+			System.out.println("inside the if condition");
 			//Sending the "200" means that the server has received the "CRQ" message unicast datagram object,(-->datagrampacketsentmulticastmessage3)
 			String acknowledgement="200";
 			byte [] byteAcknowledgement=acknowledgement.getBytes();//Transferring the Strings to Bytes
