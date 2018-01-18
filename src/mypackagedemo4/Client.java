@@ -16,6 +16,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.LineUnavailableException;
 
@@ -72,6 +73,18 @@ public class Client implements clientInterface{
 	
 		//do {
 		
+		
+		//Sending a "CRQ Request" message to the server to ask for connection,(-->datagramPacketForUniCastCRQ2)
+		byte [] byteAcknowledgementMessage2=connectionRequest.getBytes();//Transferring the Strings to Bytes
+		DatagramPacket datagramPacketForUniCastCRQ2=new DatagramPacket(byteAcknowledgementMessage2,byteAcknowledgementMessage2.length,group,portmulticast);//creating the packet
+		multicastSocket.send(datagramPacketForUniCastCRQ2);//send the packet
+		
+		//Creating an Object for Sending the Unicast messages for each sound case
+		DatagramSocket datagramSocketForUniCast=new DatagramSocket();//creating the socket;
+		//int portunicast=2000;
+		
+		//loop here
+		
 		//Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means that the Server is logging in and waiting for receiving the messages from the sender"clients"),(-->datagramPacketmMlticastMessage1)
 		byte[] buffermulticast1=new byte[100];
 		DatagramPacket datagramPacketmMlticastMessage1=new DatagramPacket(buffermulticast1,buffermulticast1.length);
@@ -80,23 +93,45 @@ public class Client implements clientInterface{
 		System.out.println(messageReceivedMulticast);
 		
 		//Compare if you are receiving SERVERon ---WHILE LOOP
-		if(!messageReceivedMulticast.equals(serverON)){
-			client1.client_state=2;//"client_state=2" means stop sending data to the server
-		}
+		boolean test=messageReceivedMulticast.equals(serverON);
+		System.out.println(test);
+		
+		//label-break statement is used to give the client a second chance to send the "servON" message if not we will repeat the process but by  
+		label:{
+			int i;
+			for(i=1;i<100;i++){
+				if(!messageReceivedMulticast.equals(serverON)){
+					client1.client_state=2;//"client_state=2" means stop sending data to the server	
+					byte[] buffermulticast2=new byte[100];
+					DatagramPacket datagramPacketmMlticastMessage2=new DatagramPacket(buffermulticast2,buffermulticast2.length);
+					multicastSocket.receive(datagramPacketmMlticastMessage2);
+					String messageReceivedMulticast2=new String(buffermulticast2);
+					try {
+						TimeUnit.MINUTES.sleep(i);//delay for "i" minutes
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}else
+					break label;
+			}		
+		}// the end of label block
+		
 		//do {
 			
 		//getting the ip of the server side to use it when we send him unicast datagram socket
-		InetAddress serverIP=datagramPacketmMlticastMessage1.getAddress();//from the multicast message we will get the IP of The Server to use it when we send the unicast packet
-		
-		
+		InetAddress serverIP=datagramPacketmMlticastMessage1.getAddress();//from the unicast message we will get the IP of The Server
+		int portunicast=datagramPacketmMlticastMessage1.getPort();
+		/*
 		//Creating an Object for Sending the Unicast messages for each sound case
 		DatagramSocket datagramSocketForUniCast=new DatagramSocket();//creating the socket;
 		int portunicast=2000;
+		
 				
 		//Sending a "acknowledgementMessage" message to the receiver like an acknowledgement,(-->datagramPacketForUniCastCRQ2)
 		byte [] byteAcknowledgementMessage2=acknowledgementMessage.getBytes();//Transferring the Strings to Bytes
 		DatagramPacket datagramPacketForUniCastCRQ2=new DatagramPacket(byteAcknowledgementMessage2,byteAcknowledgementMessage2.length,serverIP,portunicast);//creating the packet
 		datagramSocketForUniCast.send(datagramPacketForUniCastCRQ2);//send the packet
+		*/
 		
 		//Receiving the responded message after sending the "acknowledgementMessage" Message,(-->datagramPacketForUniCastCRQResponse3)
 		byte [] byteAcknowledgementMessageResponse3=new byte[100];
@@ -211,11 +246,22 @@ public class Client implements clientInterface{
 		}else if(messagerecived.equals(serverWantsDiconnect)){//"555"message
 			//"serverWantsDiconnect" means that the server wants to disconnect
 			client1.client_state=2;//close and get out of the loop
+			//Dicnonect message sent to the server to acknowlagde his disconnect request
+			byte [] bytedisconnectRequestMessage7=disconnectRequestMessage.getBytes();//Transferring the Strings to Bytes
+			DatagramPacket datagramPacketdisconnectRequestMessage7=new DatagramPacket(bytedisconnectRequestMessage7,bytedisconnectRequestMessage7.length,serverIP,portunicast);//creating the packet
+			datagramSocketForUniCast.send(datagramPacketdisconnectRequestMessage7);//send the packet
+			
+			
+			//the client class shouldnt be closed
+			/*
 			//close and disconnect the datagramSocketForUniCast
 			datagramSocketForUniCast.close();
 			datagramSocketForUniCast.disconnect();
 			//leave the multicastSocket
 			multicastSocket.leaveGroup(group);
+			*/
+			
+			
 		}//The End of The IF/Else condition
 		
 		}while (client1.client_state!=2);
