@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
@@ -66,18 +68,32 @@ public class Client implements clientInterface{
 		}
 		
 		//Creating an Object for Sending the Multicast messages
-		InetAddress group=InetAddress.getByName("225.4.5.6");//creating a multicast IP address
-		MulticastSocket multicastSocket=new MulticastSocket(3456);//opening a multicast socket port
-		multicastSocket.joinGroup(group);//subscribing the multicast IP address to  that socket port,listening to the messages of that IP address from that port
 		int portmulticast=3456;
-	
+		InetAddress group=InetAddress.getByName("225.4.5.6");//creating a multicast IP address
+		InetSocketAddress socket = new InetSocketAddress("192.168.1.62",portmulticast);
+		InetSocketAddress mg = new InetSocketAddress(group,portmulticast);
+		NetworkInterface ni = NetworkInterface.getByInetAddress(socket.getAddress());
+		MulticastSocket multicastSocket=new MulticastSocket(socket);//opening a multicast socket port
+		multicastSocket.joinGroup(mg,ni);//subscribing the multicast IP address to  that socket port,listening to the messages of that IP address from that port
+
 		//do {
-		
+		//trying one client only
+		//InetAddress serverIP=InetAddress.getByName("192.168.1.203");
+		//int portunicast=2000;
 		
 		//Sending a "CRQ Request" message to the server to ask for connection,(-->datagramPacketForUniCastCRQ2)
 		byte [] byteAcknowledgementMessage2=connectionRequest.getBytes();//Transferring the Strings to Bytes
 		DatagramPacket datagramPacketForUniCastCRQ2=new DatagramPacket(byteAcknowledgementMessage2,byteAcknowledgementMessage2.length,group,portmulticast);//creating the packet
+		MulticastSocket multicastSocket2=new MulticastSocket(socket);
+		multicastSocket2.send(datagramPacketForUniCastCRQ2);
 		multicastSocket.send(datagramPacketForUniCastCRQ2);//send the packet
+		
+		/// DELETE
+		InetSocketAddress socket2 = new InetSocketAddress("192.168.1.255",portmulticast+1);
+		DatagramSocket ds = new DatagramSocket(socket2);
+		DatagramPacket dp = new DatagramPacket(byteAcknowledgementMessage2,byteAcknowledgementMessage2.length,InetAddress.getByName("192.168.1.203"),portmulticast);//creating the packet
+		ds.send(dp);
+		////
 		
 		//Creating an Object for Sending the Unicast messages for each sound case
 		DatagramSocket datagramSocketForUniCast=new DatagramSocket();//creating the socket;
@@ -88,7 +104,7 @@ public class Client implements clientInterface{
 		//Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means that the Server is logging in and waiting for receiving the messages from the sender"clients"),(-->datagramPacketmMlticastMessage1)
 		byte[] buffermulticast1=new byte[100];
 		DatagramPacket datagramPacketmMlticastMessage1=new DatagramPacket(buffermulticast1,buffermulticast1.length);
-		multicastSocket.receive(datagramPacketmMlticastMessage1);
+		datagramSocketForUniCast.receive(datagramPacketmMlticastMessage1);
 		String messageReceivedMulticast=new String(buffermulticast1);
 		System.out.println(messageReceivedMulticast);
 		

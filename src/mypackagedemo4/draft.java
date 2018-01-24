@@ -1,7 +1,4 @@
 package mypackagedemo4;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 public class draft {
@@ -25,7 +22,7 @@ public class draft {
 			mylist.set(2, x3);
 			
 			for (Integer x:mylist)
-				System.out.println(x);
+				System.out.println("kkkkkkkkkkkkkk");
 		}	
 	}
 }
