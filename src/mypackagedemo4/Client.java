@@ -1,22 +1,16 @@
 package mypackagedemo4;
 
-import java.io.BufferedReader;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.MulticastSocket;
-import java.net.NetworkInterface;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -59,69 +53,41 @@ public class Client implements clientInterface{
 		
 		if(!file.exists()){//checking if the file exists or not,if not it will construct it.
 			file.createNewFile();
-			/*
-			//Initial state Silence,to avoid the error when we read the last state before we write in the file for the first time,check it (text.length()-1))
-			filewriter.write(dateformat.format(currentdate)+" SND2"+"\r\n");// SND2 stands for Silence
-			filewriter.flush();
-			filewriter.close();
-			*/
 		}
-		
-		//Creating an Object for Sending the Multicast messages
-		int portmulticast=3456;
-		InetAddress group=InetAddress.getByName("225.4.5.6");//creating a multicast IP address
-		InetSocketAddress socket = new InetSocketAddress("192.168.1.62",portmulticast);
-		InetSocketAddress mg = new InetSocketAddress(group,portmulticast);
-		NetworkInterface ni = NetworkInterface.getByInetAddress(socket.getAddress());
-		MulticastSocket multicastSocket=new MulticastSocket(socket);//opening a multicast socket port
-		multicastSocket.joinGroup(mg,ni);//subscribing the multicast IP address to  that socket port,listening to the messages of that IP address from that port
-
-		//do {
-		//trying one client only
-		//InetAddress serverIP=InetAddress.getByName("192.168.1.203");
-		//int portunicast=2000;
-		
-		//Sending a "CRQ Request" message to the server to ask for connection,(-->datagramPacketForUniCastCRQ2)
-		byte [] byteAcknowledgementMessage2=connectionRequest.getBytes();//Transferring the Strings to Bytes
-		DatagramPacket datagramPacketForUniCastCRQ2=new DatagramPacket(byteAcknowledgementMessage2,byteAcknowledgementMessage2.length,group,portmulticast);//creating the packet
-		MulticastSocket multicastSocket2=new MulticastSocket(socket);
-		multicastSocket2.send(datagramPacketForUniCastCRQ2);
-		multicastSocket.send(datagramPacketForUniCastCRQ2);//send the packet
-		
-		/// DELETE
-		InetSocketAddress socket2 = new InetSocketAddress("192.168.1.255",portmulticast+1);
-		DatagramSocket ds = new DatagramSocket(socket2);
-		DatagramPacket dp = new DatagramPacket(byteAcknowledgementMessage2,byteAcknowledgementMessage2.length,InetAddress.getByName("192.168.1.203"),portmulticast);//creating the packet
-		ds.send(dp);
-		////
-		
-		//Creating an Object for Sending the Unicast messages for each sound case
-		DatagramSocket datagramSocketForUniCast=new DatagramSocket();//creating the socket;
-		//int portunicast=2000;
-		
+		//the broadcast part
+			InetAddress broadcastIP=InetAddress.getByName("192.168.1.255");
+			int portBroadCast=2001;//sending port
+			int portUniCast=2002;//receiving port
+			//Sending a "CRQ Request" message to the server to ask for connection,(-->datagramPacketForUniCastCRQ2)
+			byte [] byteAcknowledgementMessage2=connectionRequest.getBytes();//Transferring the Strings to Bytes
+			DatagramPacket datagramPacketForUniCastCRQ2=new DatagramPacket(byteAcknowledgementMessage2,byteAcknowledgementMessage2.length,broadcastIP,portBroadCast);//creating the packet
+			DatagramSocket datagramSocketForbroadCast=new DatagramSocket();//creating the socket;
+			datagramSocketForbroadCast.send(datagramPacketForUniCastCRQ2);
+		 //end of the broadcast
 		//loop here
 		
 		//Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means that the Server is logging in and waiting for receiving the messages from the sender"clients"),(-->datagramPacketmMlticastMessage1)
-		byte[] buffermulticast1=new byte[100];
-		DatagramPacket datagramPacketmMlticastMessage1=new DatagramPacket(buffermulticast1,buffermulticast1.length);
-		datagramSocketForUniCast.receive(datagramPacketmMlticastMessage1);
-		String messageReceivedMulticast=new String(buffermulticast1);
-		System.out.println(messageReceivedMulticast);
+		byte[] buffermulticast1=new byte[6];
+		DatagramPacket datagramPacketmUniCastMessage1=new DatagramPacket(buffermulticast1,buffermulticast1.length);
+		DatagramSocket datagramSocketUniCast=new DatagramSocket(portUniCast);//creating the socket;
+		datagramSocketUniCast.receive(datagramPacketmUniCastMessage1);
+		String messageReceivedUnicast=new String(buffermulticast1);
+		System.out.println(messageReceivedUnicast);
 		
 		//Compare if you are receiving SERVERon ---WHILE LOOP
-		boolean test=messageReceivedMulticast.equals(serverON);
+		boolean test=messageReceivedUnicast.equals(serverON);
 		System.out.println(test);
 		
 		//label-break statement is used to give the client a second chance to send the "servON" message if not we will repeat the process but by  
 		label:{
 			int i;
 			for(i=1;i<100;i++){
-				if(!messageReceivedMulticast.equals(serverON)){
+				if(!messageReceivedUnicast.equals(serverON)){
 					client1.client_state=2;//"client_state=2" means stop sending data to the server	
 					byte[] buffermulticast2=new byte[100];
 					DatagramPacket datagramPacketmMlticastMessage2=new DatagramPacket(buffermulticast2,buffermulticast2.length);
-					multicastSocket.receive(datagramPacketmMlticastMessage2);
-					String messageReceivedMulticast2=new String(buffermulticast2);
+					datagramSocketUniCast.receive(datagramPacketmMlticastMessage2);
+					String messageReceivedUniCast2=new String(buffermulticast2);
 					try {
 						TimeUnit.MINUTES.sleep(i);//delay for "i" minutes
 					} catch (InterruptedException e) {
@@ -135,26 +101,15 @@ public class Client implements clientInterface{
 		//do {
 			
 		//getting the ip of the server side to use it when we send him unicast datagram socket
-		InetAddress serverIP=datagramPacketmMlticastMessage1.getAddress();//from the unicast message we will get the IP of The Server
-		int portunicast=datagramPacketmMlticastMessage1.getPort();
-		/*
-		//Creating an Object for Sending the Unicast messages for each sound case
-		DatagramSocket datagramSocketForUniCast=new DatagramSocket();//creating the socket;
-		int portunicast=2000;
-		
-				
-		//Sending a "acknowledgementMessage" message to the receiver like an acknowledgement,(-->datagramPacketForUniCastCRQ2)
-		byte [] byteAcknowledgementMessage2=acknowledgementMessage.getBytes();//Transferring the Strings to Bytes
-		DatagramPacket datagramPacketForUniCastCRQ2=new DatagramPacket(byteAcknowledgementMessage2,byteAcknowledgementMessage2.length,serverIP,portunicast);//creating the packet
-		datagramSocketForUniCast.send(datagramPacketForUniCastCRQ2);//send the packet
-		*/
+		InetAddress serverIP=datagramPacketmUniCastMessage1.getAddress();//from the unicast message we will get the IP of The Server
+		int portunicast=datagramPacketmUniCastMessage1.getPort();
 		
 		//Receiving the responded message after sending the "acknowledgementMessage" Message,(-->datagramPacketForUniCastCRQResponse3)
 		byte [] byteAcknowledgementMessageResponse3=new byte[100];
 		DatagramPacket datagramPacketForUniCastCRQResponse3=new DatagramPacket(byteAcknowledgementMessageResponse3, byteAcknowledgementMessageResponse3.length);
-		datagramSocketForUniCast.receive(datagramPacketForUniCastCRQResponse3);
+		datagramSocketUniCast.receive(datagramPacketForUniCastCRQResponse3);
 		String messagerecived=new String(byteAcknowledgementMessageResponse3);
-		
+		System.out.println(messagerecived);
 		do {
 			
 		//if The Client Receives "readyToReceive" it means that the Server is Ready to get Receives the Sound States
@@ -207,7 +162,7 @@ public class Client implements clientInterface{
 										String sendcurrentState=currentState;
 										byte [] b4=sendcurrentState.getBytes();//Transferring the Strings to Bytes
 										DatagramPacket datagramPacketForUniCastSoundState4=new DatagramPacket(b4,b4.length,serverIP,portunicast);
-										datagramSocketForUniCast.send(datagramPacketForUniCastSoundState4);//send the packet
+										datagramSocketUniCast.send(datagramPacketForUniCastSoundState4);//send the packet
 										System.out.println(currentState);
 										//After Comparing We Will Write in The log file of the client side 
 										filewriter.write(dateformat.format(currentdate)+" "+currentState+"\r\n");
@@ -220,22 +175,22 @@ public class Client implements clientInterface{
 											for(int times=1;times<=3;times++){										
 												byte [] bMemory=memorystring.getBytes();
 												DatagramPacket datagramPacketForUniCastRepeat4=new DatagramPacket(bMemory,bMemory.length,serverIP,portunicast);
-												datagramSocketForUniCast.send(datagramPacketForUniCastRepeat4);
+												datagramSocketUniCast.send(datagramPacketForUniCastRepeat4);
 											}//end of the FOR loop
 										}
 										//Receiving the responded message after sending the Current state Message,(-->datagramPacketunicastmessage5)
-										datagramSocketForUniCast.setSoTimeout(2000);
+										datagramSocketUniCast.setSoTimeout(2000);
 											try {
 												byte [] b5=new byte[100];
 												DatagramPacket datagramPacketunicastmessage5=new DatagramPacket(b5, b5.length);
-												datagramSocketForUniCast.receive(datagramPacketunicastmessage5);
+												datagramSocketUniCast.receive(datagramPacketunicastmessage5);
 												String messagerecived2=new String(b5);
 												if(!messagerecived2.equals(readyToReceive)){
 													//Send Again The Current State to The Server Side,(-->datagramPacketForUniCastRepeat6)
 													String sendcurrentState=currentState;
 													byte [] bRepeat6=sendcurrentState.getBytes();
 													DatagramPacket datagramPacketForUniCastRepeat6=new DatagramPacket(bRepeat6,bRepeat6.length,serverIP,portunicast);
-													datagramSocketForUniCast.send(datagramPacketForUniCastRepeat6);
+													datagramSocketUniCast.send(datagramPacketForUniCastRepeat6);
 												}
 											} catch (SocketTimeoutException socketerror) {
 												client1.client_state=2;//close and get out of the loop
@@ -258,14 +213,14 @@ public class Client implements clientInterface{
 			//Sending a "disconnectRequestMessage" message to the server like an acknowledgement,(-->datagramPacketdisconnectRequestMessage7),check the clientInterface
 			byte [] bytedisconnectRequestMessage7=disconnectRequestMessage.getBytes();//Transferring the Strings to Bytes
 			DatagramPacket datagramPacketdisconnectRequestMessage7=new DatagramPacket(bytedisconnectRequestMessage7,bytedisconnectRequestMessage7.length,serverIP,portunicast);//creating the packet
-			datagramSocketForUniCast.send(datagramPacketdisconnectRequestMessage7);//send the packet
+			datagramSocketUniCast.send(datagramPacketdisconnectRequestMessage7);//send the packet
 		}else if(messagerecived.equals(serverWantsDiconnect)){//"555"message
 			//"serverWantsDiconnect" means that the server wants to disconnect
 			client1.client_state=2;//close and get out of the loop
 			//Dicnonect message sent to the server to acknowlagde his disconnect request
 			byte [] bytedisconnectRequestMessage7=disconnectRequestMessage.getBytes();//Transferring the Strings to Bytes
 			DatagramPacket datagramPacketdisconnectRequestMessage7=new DatagramPacket(bytedisconnectRequestMessage7,bytedisconnectRequestMessage7.length,serverIP,portunicast);//creating the packet
-			datagramSocketForUniCast.send(datagramPacketdisconnectRequestMessage7);//send the packet
+			datagramSocketUniCast.send(datagramPacketdisconnectRequestMessage7);//send the packet
 			
 			
 			//the client class shouldnt be closed
