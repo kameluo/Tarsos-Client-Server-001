@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -56,8 +58,8 @@ public class Client implements clientInterface{
 		}
 		//the broadcast part
 			InetAddress broadcastIP=InetAddress.getByName("192.168.1.255");
-			int portBroadCast=2001;//sending port
-			int portUniCast=2002;//receiving port
+			int portBroadCast=20001;//sending port
+			int portUniCast=20002;//receiving port
 			//Sending a "CRQ Request" message to the server to ask for connection,(-->datagramPacketForUniCastCRQ2)
 			byte [] byteAcknowledgementMessage2=connectionRequest.getBytes();//Transferring the Strings to Bytes
 			DatagramPacket datagramPacketForUniCastCRQ2=new DatagramPacket(byteAcknowledgementMessage2,byteAcknowledgementMessage2.length,broadcastIP,portBroadCast);//creating the packet
@@ -68,12 +70,16 @@ public class Client implements clientInterface{
 		
 		//Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means that the Server is logging in and waiting for receiving the messages from the sender"clients"),(-->datagramPacketmMlticastMessage1)
 		byte[] buffermulticast1=new byte[6];
+		SocketAddress socket = new InetSocketAddress("192.168.1.62",portUniCast);
 		DatagramPacket datagramPacketmUniCastMessage1=new DatagramPacket(buffermulticast1,buffermulticast1.length);
-		DatagramSocket datagramSocketUniCast=new DatagramSocket(portUniCast);//creating the socket;
+		DatagramSocket datagramSocketUniCast=new DatagramSocket(socket);//creating the socket;
 		datagramSocketUniCast.receive(datagramPacketmUniCastMessage1);
 		String messageReceivedUnicast=new String(buffermulticast1);
 		System.out.println(messageReceivedUnicast);
 		
+		int x=datagramPacketmUniCastMessage1.getPort();
+		System.out.println(x);
+
 		//Compare if you are receiving SERVERon ---WHILE LOOP
 		boolean test=messageReceivedUnicast.equals(serverON);
 		System.out.println(test);
@@ -133,12 +139,15 @@ public class Client implements clientInterface{
 						           //if condition for detecting  the Speech
 						           if(freq > 60 && freq < 250){
 						        	   currentState="SD0";
+						        	   System.out.println("its a speech");
 					        	   //if condition for detecting  the Alarm
 						           }else if(freq > 450 && freq < 2600){
 						        	   currentState="SD1";
+						        	   System.out.println("its an Alarm");
 					        	   //if condition for detecting  the Silence
 						           }else{
 						        	   currentState="SD2";
+						        	   System.out.println("its Silent");
 						           }
 						           try {
 						        	   //checking if the current state is the same like the old state or not
