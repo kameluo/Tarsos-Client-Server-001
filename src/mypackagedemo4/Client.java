@@ -57,7 +57,7 @@ public class Client implements clientInterface{
 			file.createNewFile();
 		}
 		//the broadcast part
-			InetAddress broadcastIP=InetAddress.getByName("192.168.1.255");
+			InetAddress broadcastIP=InetAddress.getByName("192.168.0.255");
 			int portBroadCast=20001;//sending port
 			int portUniCast=20002;//receiving port
 			//Sending a "CRQ Request" message to the server to ask for connection,(-->datagramPacketForUniCastCRQ2)
@@ -70,7 +70,7 @@ public class Client implements clientInterface{
 		
 		//Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means that the Server is logging in and waiting for receiving the messages from the sender"clients"),(-->datagramPacketmMlticastMessage1)
 		byte[] buffermulticast1=new byte[6];
-		SocketAddress socket = new InetSocketAddress("192.168.1.62",portUniCast);
+		SocketAddress socket = new InetSocketAddress("192.168.0.106",portUniCast);//the IP of This Machine
 		DatagramPacket datagramPacketmUniCastMessage1=new DatagramPacket(buffermulticast1,buffermulticast1.length);
 		DatagramSocket datagramSocketUniCast=new DatagramSocket(socket);//creating the socket;
 		datagramSocketUniCast.receive(datagramPacketmUniCastMessage1);
