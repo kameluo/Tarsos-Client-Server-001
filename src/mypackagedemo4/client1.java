@@ -12,7 +12,6 @@ import java.net.MulticastSocket;
 import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -31,39 +30,20 @@ import jvm.be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 
 public class client1 implements clientInterface{
 	
-	private static int client_state; // waiting for connection
-	private String oldState;
-	private boolean sending;
+	private static int client_state=0; // waiting for connection
+	private static String oldState="";
+	private static boolean sending=false;
 	
-	private void client1(){
-		client_state=0; // waiting for connection
-		oldState= "SND2";
-		sending= false;
-	}
-
 	public static void main(String[] args) throws IOException, LineUnavailableException {
-		
-		//Creating an object from the client class to be able to use the variables inside our program
-		client1 client1= new client1();
-		
 		//Constructing the date
 		DateFormat dateformat = new SimpleDateFormat("dd/MM/yy HH:mm a");//To Set the Format of the Date.
 		Date currentdate = new Date();//To Get the Current Date.
 		
-		//Creating The Log File For The Client Side
-		File file=new File("logclient1.txt");
-
-		//Creating an object from the FileWriter Class to be able to write in it the states
-		FileWriter filewriter=new FileWriter(file,true);//the FileWriter contains 2 arguments,first one is for the file name which is in this case is "file" and the second argument is boolean to allow us to write at the end of the file rather than overwrite and lose our previous data
-		
-		if(!file.exists()){//checking if the file exists or not,if not it will construct it.
-			file.createNewFile();
-		}
  		//Creating an Object for Sending the Multicast messages
 		int portmulticast=3456;
 		InetAddress group=InetAddress.getByName("225.4.5.6");//creating a multicast IP address
 		
-		InetSocketAddress socket = new InetSocketAddress("192.168.0.110",portmulticast);
+		InetSocketAddress socket = new InetSocketAddress("192.168.0.103",portmulticast);//the IP of this machine
 		InetSocketAddress mg = new InetSocketAddress(group,portmulticast);
 		NetworkInterface ni = NetworkInterface.getByInetAddress(socket.getAddress());
 		MulticastSocket multicastSocket=new MulticastSocket(socket);//opening a multicast socket port
@@ -72,7 +52,6 @@ public class client1 implements clientInterface{
 		//Sending a "CRQ Request" message to the server to ask for connection
 		byte [] byteCRQ=connectionRequest.getBytes();//Transferring the Strings to Bytes
  		DatagramPacket datagramPacketForMultiCastCRQ=new DatagramPacket(byteCRQ,byteCRQ.length,group,portmulticast);//creating the packet
-		multicastSocket.send(datagramPacketForMultiCastCRQ);
  		multicastSocket.send(datagramPacketForMultiCastCRQ);//send the packet
  		
 		//the unicast part
@@ -80,9 +59,9 @@ public class client1 implements clientInterface{
 		//loop here
 		
 		//Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means that the Server is logging in and waiting for receiving the messages from the sender"clients")
-		SocketAddress socket2 = new InetSocketAddress("192.168.0.110",portUniCast);//the IP of This Machine
+		SocketAddress socket2 = new InetSocketAddress("192.168.0.103",portUniCast);//the IP of This Machine
 		String messagerecieved=recievemessage(socket2);
-		
+
 		System.out.println(getclientPort());
 
 		//Compare if you are receiving SERVERon ---WHILE LOOP
@@ -94,8 +73,8 @@ public class client1 implements clientInterface{
 			int i;
 			for(i=1;i<100;i++){
 				if(!messagerecieved.equals(serverON)){
-					client1.client_state=2;//"client_state=2" means stop sending data to the server	
-					String messageRecievedAgain=recievemessage(socket);
+					client_state=2;//"client_state=2" means stop sending data to the server	
+					String messageRecievedAgain=recievemessage(socket2);
 					try {
 						TimeUnit.MINUTES.sleep(i);//delay for "i" minutes
 					} catch (InterruptedException e) {
@@ -110,8 +89,8 @@ public class client1 implements clientInterface{
 		//if The Client Receives "readyToReceive" it means that the Server is Ready to get Receives the Sound States
 		if(messagerecieved.equals(serverON)){
 			//Sound Detecting Part
-			client1.client_state=1; //"client_state=1"means that the server is ready for sending data
-			while(client1.client_state==1){
+			client_state=1; //"client_state=1"means that the server is ready for sending data
+			while(client_state==1){
 							//creating a memory of array of 3 elements size
 							String[] memory=new String[3];
 							
@@ -134,17 +113,17 @@ public class client1 implements clientInterface{
 						           }
 						           try {
 						        	   //checking if the current state is the same like the old state or not
-						        	   if (!currentState.equals(client1.oldState)){
-						        		   client1.oldState=currentState;
-						        		   client1.sending=true;
-						        	   }	
+						        	   if (!currentState.equals(oldState)){
+						        		   oldState=currentState;
+						        		   sending=true;
+						        	   }
 						        	   int previous_message=0;
 						        	   String memorystring ="";
-						        	   while(!client1.clientIP.isReachable(2000)){//not sure about it
+						        	   while(!serverIP.isReachable(2000)){//not sure about it
 						        		   //Inserting The Latest 3 Sound States In The Memory Array
 											for(int x=0;x<memory.length;x++){
 												if(x!=memory.length){
-													memory[x]=client1.oldState;
+													memory[x]=oldState;
 												}
 											//converting the memory elements into a One String
 											memorystring=String.join(",",memory);
@@ -152,33 +131,31 @@ public class client1 implements clientInterface{
 											}
 										}//The End of unReachable WHILE loop
 						        	   
-										if (client1.sending==true){
+										if (sending==true){
 										//Sending The Current State to The Server Side
-										String sendcurrentState=currentState;
-										send(sendcurrentState,client1.clientIP,client1.clientPort);
+										send(currentState,serverIP,serverPort);
 									
 										System.out.println(currentState);
+										
 										//After Comparing We Will Write in The log file of the client side 
-										filewriter.write(dateformat.format(currentdate)+" "+currentState+"\r\n");
-										filewriter.flush();
-										filewriter.close();
+										writeToFile(dateformat,currentdate,currentState);
 										}
 										//if the "previous_message" is more than zero we will send the memory array
 										if(previous_message!= 0){
 											//Repeat Sending The Memory 3 Times 
 											for(int times=1;times<=3;times++){		
-												send(memorystring,client1.clientIP,client1.clientPort);
+												send(memorystring,serverIP,serverPort);
 											}//end of the FOR loop
 										}
 										//Receiving the responded message after sending the Current state Message
 											//datagramSocketUniCast.setSoTimeout(2000);// -------------ask juan carlos about deleting this step 1-2-2018 
-												String messageRecieved2=recievemessage(socket);
+												String messageRecieved2=recievemessage(socket2);
 												if(!messageRecieved2.equals(readyToReceive)){
 													//Send Again The Current State to The Server Side
 													String sendcurrentState=currentState;
-													send(sendcurrentState,client1.clientIP,client1.clientPort);
+													send(sendcurrentState,serverIP,serverPort);
 												}else if(messageRecieved2.equals(serverWantsDisconnect)){
-													client1.client_state=2;//close and get out of the loop
+													client_state=2;//close and get out of the loop
 												}
 						        	   }catch (FileNotFoundException e) {
 										e.printStackTrace();
@@ -195,31 +172,30 @@ public class client1 implements clientInterface{
 			//should we put those to conditions with the 200 message
 		}else if(messagerecieved.equals("500")){
 			// what are we going to do here?
-			client1.client_state=0;//waiting for connection 
+			client_state=0;//waiting for connection 
 			//Sending a "disconnectRequestMessage" message to the server like an acknowledgement,check the clientInterface
-			send(disconnectRequestMessage,client1.clientIP,client1.clientPort);
+			send(disconnectRequestMessage,serverIP,serverPort);
 		}else if(messagerecieved.equals(serverWantsDisconnect)){//"555"message
 			//"serverWantsDiconnect" means that the server wants to disconnect
-			client1.client_state=2;//close and get out of the loop
+			client_state=2;//close and get out of the loop
 			//Disconnect message sent to the server to acknowledgement his disconnect request
-			send(disconnectRequestMessage,client1.clientIP,client1.clientPort);
+			send(disconnectRequestMessage,serverIP,serverPort);
 			
 		}//The End of The IF/Else condition
 		
-		}while (client1.client_state!=2);
-		
+		}while (client_state!=2);
 	}
 	
 	//methods --->
 	//Send Packets
 	public static void send(String message, InetAddress IP, int Port) {
 		byte[] buffer=message.getBytes();//Transferring the Strings to Bytes
-		System.out.println(IP+"   sending");
 		DatagramPacket datagramPacketsend=new DatagramPacket(buffer,buffer.length,IP,20002);//creating the packet
 		datagramPacketsend.setPort(20002);
 		try {
 			DatagramSocket datagramSocketUniCast = new DatagramSocket();
 			datagramSocketUniCast.send(datagramPacketsend);
+			datagramSocketUniCast.close();
 		} catch (SocketException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -227,14 +203,16 @@ public class client1 implements clientInterface{
 		}
 	}
 	//Receive Packets
-	private static InetAddress clientIP;
-	private static int clientPort;
+	private static InetAddress serverIP;
+	private static int serverPort;
 	public static String recievemessage(SocketAddress sockect) throws UnknownHostException{
 		byte [] buffer=new byte [3];
 		DatagramPacket datagrampacket=new DatagramPacket(buffer,buffer.length);
 		try {
 			DatagramSocket datagramsocket=new DatagramSocket(sockect);
+			datagramsocket.setReuseAddress(true);
 			datagramsocket.receive(datagrampacket);
+			datagramsocket.close();
 		} catch (SocketException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -242,26 +220,41 @@ public class client1 implements clientInterface{
 		}
 		String message=new String(buffer);
 		System.out.println(message);
-		InetAddress clientIP=datagrampacket.getAddress();
+		InetAddress serverIP=datagrampacket.getAddress();
 		
-		System.out.println(clientIP+"   Receiving");
-		setclientIP(clientIP);
-		int clientPort=datagrampacket.getPort();
-		setclientPort(clientPort);
+		setclientIP(serverIP);
+		int serverPort=datagrampacket.getPort();
+		setclientPort(serverPort);
 		return message;
 	}
 	//Getter and Setter IP and Port
-	public static void setclientIP(InetAddress clientIP){
-		System.out.println(clientIP+"   setclientIP");
-		client1.clientIP=clientIP;
+	public static void setclientIP(InetAddress serverIP){
+		client1.serverIP=serverIP;
 	}
 	public static InetAddress getclientIP(){
-		return clientIP;
+		return serverIP;
 	}
-	public static void setclientPort(int clientPort){
-		client1.clientPort=clientPort;
+	public static void setclientPort(int serverPort){
+		client1.serverPort=serverPort;
 	}
 	public static int getclientPort(){
-		return clientPort;
+		return serverPort;
+	}
+	public static void writeToFile(DateFormat dateformat,Date currentdate,String currentstate) {
+		//Creating The Log File For The Client Side
+		File file=new File("logclient1.txt");
+		try {
+		FileWriter filewriter=new FileWriter(file,true);//the FileWriter contains 2 arguments,first one is for the file name which is in this case is "file" and the second argument is boolean to allow us to write at the end of the file rather than overwrite and lose our previous data
+		
+		if(!file.exists()){//checking if the file exists or not,if not it will construct it.
+			file.createNewFile();
+		}
+		//After Comparing We Will Write in The log file of the client side 
+			filewriter.write(dateformat.format(currentdate)+" "+currentstate+"\r\n");
+			filewriter.flush();
+			filewriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
