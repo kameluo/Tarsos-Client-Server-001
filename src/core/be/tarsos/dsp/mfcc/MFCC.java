@@ -48,7 +48,7 @@ public class MFCC implements AudioProcessor {
     private float sampleRate;
     
     public MFCC(int samplesPerFrame, int sampleRate){
-    	this(samplesPerFrame, sampleRate, 30, 30, 133.3334f, ((float)sampleRate)/2f);
+    	this(samplesPerFrame, sampleRate, 30, 30, 133.3333f, ((float)sampleRate)/2f);
     }
 
     public MFCC(int samplesPerFrame, float sampleRate, int amountOfCepstrumCoef, int amountOfMelFilters, float lowerFilterFreq, float upperFilterFreq) {
@@ -124,15 +124,13 @@ public class MFCC implements AudioProcessor {
         mel[1] = freqToMel(upperFilterFreq);
         
         float factor = (float)((mel[1] - mel[0]) / (amountOfMelFilters + 1));
-        //Calculates te centerfrequencies.
+        //Calculates the centerfrequencies.
         for (int i = 1; i <= amountOfMelFilters; i++) {
             float fc = (inverseMel(mel[0] + factor * i) / sampleRate) * samplesPerFrame;
             centerFrequencies[i - 1] = Math.round(fc);
+           //System.out.println(fc*100f);
         }
-
     }
-    
-	
     /**
      * the output of mel filtering is subjected to a logarithm function (natural logarithm)<br>
      * calls: none<br>
