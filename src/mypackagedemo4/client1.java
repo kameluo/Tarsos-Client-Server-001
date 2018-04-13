@@ -53,6 +53,10 @@ public class client1 implements clientInterface {
 	private static boolean sending = false;
 
 	public static void main(String[] args) throws IOException, LineUnavailableException {
+		//Extracting the data from the Excel Sheets
+		readExcel readexcel=new readExcel();
+		readexcel.readExcelsheets();
+		
 		// Constructing the date
 		DateFormat dateformat = new SimpleDateFormat("dd/MM/yy HH:mm a");// To Set the Format of the Date.
 		Date currentdate = new Date();// To Get the Current Date.
@@ -61,7 +65,7 @@ public class client1 implements clientInterface {
 		int portmulticast = 3456;
 		InetAddress group = InetAddress.getByName("225.4.5.6");// creating a multicast IP address
 
-		InetSocketAddress socket = new InetSocketAddress("192.168.0.100", portmulticast);// the IP of this machine
+		InetSocketAddress socket = new InetSocketAddress("192.168.0.101", portmulticast);// the IP of this machine
 		InetSocketAddress mg = new InetSocketAddress(group, portmulticast);
 		NetworkInterface ni = NetworkInterface.getByInetAddress(socket.getAddress());
 		MulticastSocket multicastSocket = new MulticastSocket(socket);// opening a multicast socket port
@@ -81,7 +85,7 @@ public class client1 implements clientInterface {
 		// Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means
 		// that the Server is logging in and waiting for receiving the messages from the
 		// sender"clients")
-		SocketAddress socket2 = new InetSocketAddress("192.168.0.100", portUniCast);// the IP of This Machine
+		SocketAddress socket2 = new InetSocketAddress("192.168.0.101", portUniCast);// the IP of This Machine
 		String messagerecieved = recievemessage(socket2);
 
 		System.out.println(getclientPort());
@@ -200,8 +204,6 @@ public class client1 implements clientInterface {
 						}// The End of The "handlePitch" Override method in The
 							// PitchDetectionHandler-handler Object Class
 						
-					    
-					    
 					};// The End Of The PitchDetectionHandler-handler Object Class
 					AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(44100, 16384, 0);
 					adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 44100, 16384, handler));
@@ -220,56 +222,14 @@ public class client1 implements clientInterface {
 				        		for(int k=0;k<=12;k++) {
 				        			mfccArrayDouble[k]=mfccArray[k];
 				        		}
-					           // System.out.println(mfccArray[0]+" "+mfccArray[1]+" "+mfccArray[2]+" "+mfccArray[3]+" "+mfccArray[4]+" "+mfccArray[5]+" "+mfccArray[6]+" "+mfccArray[7]+" "+mfccArray[8]+" "+mfccArray[9]+" "+mfccArray[10]+" "+mfccArray[11]+" "+mfccArray[12]);
-								String[] excelSheets = {"f1.xls","f2.xls","f3.xls","f4.xls","f5.xls","f6.xls","f7.xls","f8.xls","f9.xls"};
-				            	int numIterations=1;
-				            	
-				            	boolean matrixOrDiagonal=true;//this is a flag to indicate if we are going to use the whole sigma matrix or the diagonal,true means we are going to use the sigma diagonal,false means the whole matrix
-									if(matrixOrDiagonal){
-					            		try {
-											for (int j = 0; j < excelSheets.length; j++) {
-												double tmp = 0.0;
-												for (int ngauss = 0; ngauss < 30; ngauss++) {
-													double prop=MathUtils.getGaussianPdfValue(mfccArrayDouble, getMuArray1d(getMuArray2d(excelSheets[j]),ngauss), getSigmaArrayDiagonal(getSigmaArraysDiagonal(excelSheets[j]),ngauss));
-													double[] weights = new double[ngauss];
-													weights[j] = 1.0f / 30;
-													tmp += weights[j] * prop;
-												}
-												double[] logLikelihoods = null;
-												logLikelihoods[numIterations - 1] += Math.log(tmp);
-												System.out.println("prop is :"+logLikelihoods[numIterations - 1]);
-											}
-										} catch (FileNotFoundException e) {
-											e.printStackTrace();
-										} catch (IOException e) {
-											e.printStackTrace();
-										}
-				        			}else{
-				        				try {
-											for (int j = 0; j < excelSheets.length; j++) {
-												double tmp = 0.0;
-												for (int ngauss = 0; ngauss < 30; ngauss++) {
-													double prop=MathUtils.getGaussianPdfValue(mfccArrayDouble, getMuArray1d(getMuArray2d(excelSheets[j]),ngauss), getSigmaArrayDiagonal(getSigmaArraysDiagonal(excelSheets[j]),ngauss));
-													double[] weights = new double[ngauss];
-													weights[j] = 1.0f / 30;
-													tmp += weights[j] * prop;
-												}
-												double[] logLikelihoods = null;
-												logLikelihoods[numIterations - 1] += Math.log(tmp);
-												System.out.println("prop is :"+logLikelihoods[numIterations - 1]);
-											}
-										} catch (FileNotFoundException e) {
-											e.printStackTrace();
-										} catch (IOException e) {
-											e.printStackTrace();
-										}
-				        			}	
-					            return true;
+				        		processExcel processexcel=new processExcel();
+			        			String category=processexcel.processExcel(mfccArrayDouble);
+			        			
+			        			System.out.println("The Category is:"+category);
+					       return true;
 				        }
 				    });
-					
 					adp.run();
-				
 					//start of mfcc part------------------
 					/*
 					int sampleRate = 44100;
@@ -418,109 +378,4 @@ public class client1 implements clientInterface {
 		return null;
 	}
 	*/
-	
-	
-	
-	/** 
-	 * 7 functions to get the data matrices from the excel sheets "sigma,mu and the component proportional[]"
-	 * 		1-"double[] getSigmaArrayDiagonal"function to get one row from the 2d array "double[][] getSigmaArraysDiagonal"
-			2-"double[][] getSigmaArraysDiagonal" is a function to get each array "1x13" in every sheet (which is the Diagonal Sigma Vector) and store them in 2d "30x13" array
-			3-"double[][] getSigmaArrays2d" to get a single sigma matrix from the multidimensional array "double[][][] getSigmaArrays3d"
-			4-"double[][][] getSigmaArrays3d" is a multidimensional array to get the 30 matrices of sigma in each file and store them in 3d array
-			5-"double[] getMuArray1d"function to get one row from the 2d array "double[][] getMuArray"
-			6-"double[][] getMuArray" is a function to get the Mu matrix from the excel file
-			7-"double[] getComponentProportionElement"function to get the component proportional Element from the "double[] getComponentProportionArray"
-			8-"double[] getComponentProportionArray"function to get the component proportional Array from the Excel file
-	*/
-	//"double[] getSigmaArrayDiagonal"function to get one row from the 2d array "double[][] getSigmaArraysDiagonal"
-		public static double[] getSigmaArrayDiagonal(double[][] getSigmaArraysDiagonal,int rowNumber) {
-			double[] arraySigmaDiagonal=new double[13];
-				for(int column=0;column<=12;column++) {
-					arraySigmaDiagonal[column]=getSigmaArraysDiagonal[rowNumber][column];
-				}
-			return arraySigmaDiagonal;
-		}
-	
-	//"double[][] getSigmaArraysDiagonal" is a function to get each array in every sheet and store them in 2d "30x13" array
-	public static double[][] getSigmaArraysDiagonal(String filename) throws FileNotFoundException, IOException{
-        double[][] arraysSigmaDiagonal=new double[30][13];
-        HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(filename));//to be able to create everything in the excel sheet
-        for(int s=0;s<=29;s++){//for loop to get the 30 Sigma Arrays "1x13" in a 2d-dimensional array
-            String sheetname="SigmaDiagonal"+(String.valueOf(s+1));//adding the index to the sheet name
-            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
-            for(int column=0;column<=12;column++){//for loop to get the  in each Sigma Array in the each single excel sheet 
-            	HSSFRow row=sheet.getRow(0);//we have only one row in each sigma diagonal sheet
-            	arraysSigmaDiagonal[s][column]=row.getCell(column).getNumericCellValue(); 
-            }
-        }
-        return arraysSigmaDiagonal;
-    }
-	
-	// "double[][] getSigmaArrays2d" to get a single sigma matrix from the multidimensional array "double[][][] getSigmaArrays3d"
-	public static double[][] getSigmaArrays2d(double[][][] getSigmaArrays3d,int Sigma) throws FileNotFoundException, IOException{
-		//sigma is an integer from 0 to 29 to indicate which matrix do we want from that category(we have 30 matrices)
-		double[][] arraysigma2d=new double[13][13];
-		for(int row=0;row<=12;row++) {
-			for(int column=0;column<=12;column++) {
-				arraysigma2d[row][column]=getSigmaArrays3d[Sigma][row][column];
-			}
-		}
-		return arraysigma2d;
-	}
-	
-	// "double[][][] getSigmaArrays3d" is a multi dimentional array to get the 30 matrices of sigma in each file
-	public static double[][][] getSigmaArrays3d(String filename) throws FileNotFoundException, IOException{
-        double[][][] arraysigma=new double[30][13][13];
-        HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(filename));//to be able to create everything in the excel sheet
-        for(int s=0;s<=29;s++){//for loop to get the 30 Sigma matrices "13x13" in a multidimensional array
-            String sheetname="Sigma"+(String.valueOf(s+1));//adding the index to the sheet name
-            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
-            for(int i=0;i<=12;i++){//for loop to get the rows and columns in each Sigma matrix
-                for(int j=0;j<=12;j++){
-                    HSSFRow row=sheet.getRow(i);
-                    arraysigma[s][i][j]=row.getCell(j).getNumericCellValue();
-                }
-            }
-        }
-        return arraysigma;
-    }
-	//"double[] getMuArray1d"function to get one row from the 2d array "double[][] getMuArray"
-	public static double[] getMuArray1d(double[][] getMuArray2d,int rowNumber) {
-		double[] getMuArray1d=new double[13];
-			for(int column=0;column<=12;column++) {
-				getMuArray1d[column]=getMuArray2d[rowNumber][column];
-			}
-		return getMuArray1d;
-	}
-	//"double[][] getMuArray" is a function to get the Mu matrix from the excel file
-	public static double[][] getMuArray2d(String filename) throws FileNotFoundException, IOException{
-	    double[][] arraymu=new double[30][13];
-	    HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(filename));//to be able to create everything in the excel sheet
-	    HSSFSheet sheet=workbook.getSheet("mu");//getting the sheet
-	    for(int i=0;i<=29;i++){//for loop to get the Mu matrix "30x13" in a multidimensional array
-	        for(int j=0;j<=12;j++){
-	            HSSFRow row=sheet.getRow(i);
-	            arraymu[i][j]=row.getCell(j).getNumericCellValue();
-	        }
-	    }
-	    return arraymu;
-	}
-	//"double[] getComponentProportionElement"function to get the component proportional Element from the "double[] getComponentProportionArray"
-	public static double getComponentProportionElement(double[] getComponentProportionArray,int numberOfElement) {
-		double componentArrayElement=getComponentProportionArray[numberOfElement];
-		return componentArrayElement;
-	}
-	
-	//"double[] getComponentProportionArray"function to get the component proportional Array from the Excel file
-	public static double[] getComponentProportionArray(String filename) throws FileNotFoundException, IOException{
-	    double[] arrayComponentProportion=new double[30];
-	    HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(filename));//to be able to create everything in the excel sheet
-	    HSSFSheet sheet=workbook.getSheet("ComponentProportion");//getting the sheet
-	    for(int j=0;j<=29;j++){
-	        HSSFRow row=sheet.getRow(0);
-	        arrayComponentProportion[j]=row.getCell(j).getNumericCellValue();
-	    }    
-	    return arrayComponentProportion;
-}
-
 }
