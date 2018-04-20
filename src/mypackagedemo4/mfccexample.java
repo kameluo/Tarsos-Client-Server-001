@@ -51,9 +51,7 @@ public class mfccexample {
 		    });
 		    dispatcher.run();
 		}
-	public float[] getarray() {
-		return null;
-	}
+	
 	public static float[] setarray(float[] array) {
 		for (int i=1;i<=13;i++) {
 			float x=mfccArrayavareage[i];

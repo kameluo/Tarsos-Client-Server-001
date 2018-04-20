@@ -65,7 +65,7 @@ public class client1 implements clientInterface {
 		int portmulticast = 3456;
 		InetAddress group = InetAddress.getByName("225.4.5.6");// creating a multicast IP address
 
-		InetSocketAddress socket = new InetSocketAddress("192.168.0.101", portmulticast);// the IP of this machine
+		InetSocketAddress socket = new InetSocketAddress("192.168.0.103", portmulticast);// the IP of this machine
 		InetSocketAddress mg = new InetSocketAddress(group, portmulticast);
 		NetworkInterface ni = NetworkInterface.getByInetAddress(socket.getAddress());
 		MulticastSocket multicastSocket = new MulticastSocket(socket);// opening a multicast socket port
@@ -85,7 +85,7 @@ public class client1 implements clientInterface {
 		// Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means
 		// that the Server is logging in and waiting for receiving the messages from the
 		// sender"clients")
-		SocketAddress socket2 = new InetSocketAddress("192.168.0.101", portUniCast);// the IP of This Machine
+		SocketAddress socket2 = new InetSocketAddress("192.168.0.103", portUniCast);// the IP of This Machine
 		String messagerecieved = recievemessage(socket2);
 
 		System.out.println(getclientPort());
@@ -224,36 +224,12 @@ public class client1 implements clientInterface {
 				        		}
 				        		processExcel processexcel=new processExcel();
 			        			String category=processexcel.processExcel(mfccArrayDouble);
-			        			
 			        			System.out.println("The Category is:"+category);
 					       return true;
 				        }
 				    });
 					adp.run();
-					//start of mfcc part------------------
-					/*
-					int sampleRate = 44100;
-				    int bufferSize = 16384;
-				    int bufferOverlap = 128;
-				    AudioDispatcher dispatcher = AudioDispatcherFactory.fromDefaultMicrophone(44100,16384,512);
-					MFCC mfcc = new MFCC(bufferSize, sampleRate, 40, 50, 300, 3000);
-					dispatcher.addAudioProcessor(mfcc);
 					
-					dispatcher.addAudioProcessor(new AudioProcessor() {
-				        @Override
-				        public void processingFinished() {
-				            System.out.println("DONE");
-				        }
-				        @Override
-				        public boolean process(AudioEvent audioEvent) {
-				            	float[] mfccArr = mfcc.getMFCC();
-					            System.out.println(mfccArr);
-				            return true;
-				        }
-				    });
-					dispatcher.run();
-					//end of mfcc part------------------
-					*/
 				} // --------------------------------------------------check here
 
 				// should we put those to conditions with the 200 message

@@ -11,19 +11,19 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import marytts.util.math.MathUtils;
 
 public class readExcel {
+	
 	String[] excelSheets = {"f1.xls","f2.xls","f3.xls","f4.xls","f5.xls","f6.xls","f7.xls","f8.xls","f9.xls"};
 	
 	//Reading All The Excel Sheets
-	double[][][][] arraysSigmaMatrices=new double[9][30][13][13];
-	double[][][][] arrayDeterminantSigmaMatrices=new double[9][30][1][1];
-	double[][][][] arrayInverseSigmaMatrices=new double[9][30][13][13];
-	double[][][][] arraysSigmaDiagonalMatrices=new double[9][30][1][13];
-	double[][][] arraysMuMatrices=new double[9][30][13];
-	double[][][] arraysComponentProportionalMatrices=new double[9][1][30];
-	
-	
+	static double[][][][] arraysSigmaMatrices=new double[9][30][13][13];
+	static double[][][][] arrayDeterminantSigmaMatrices=new double[9][30][1][1];
+	static double[][][][] arrayInverseSigmaMatrices=new double[9][30][13][13];
+	static double[][][][] arraysSigmaDiagonalMatrices=new double[9][30][1][13];
+	static double[][][] arraysMuMatrices=new double[9][30][13];
+	static double[][][] arraysComponentProportionalMatrices=new double[9][1][30];
 	
 	public void readExcelsheets() throws FileNotFoundException, IOException {
+		//String[] excelSheets = {"f1.xls","f2.xls","f3.xls","f4.xls","f5.xls","f6.xls","f7.xls","f8.xls","f9.xls"};
 		System.out.println("Wait to Read The Files...");
 		arraysSigmaMatrices();
 		arrayDeterminantSigmaMatrices();
@@ -35,87 +35,92 @@ public class readExcel {
 	}
 	public void arraysSigmaMatrices() throws FileNotFoundException, IOException {
 		for(int catrgory = 0; catrgory < excelSheets.length; catrgory++) {
+			HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
 			for(int ngauss = 0; ngauss < 30; ngauss++){
+				String sheetname="Sigma"+(String.valueOf(ngauss+1));//adding the index to the sheet name
+	            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 				for(int row= 0; row < 13; row++) {
 					for(int column= 0; column < 13; column++) {
-						HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
-						String sheetname="Sigma"+(String.valueOf(ngauss+1));//adding the index to the sheet name
-			            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 						HSSFRow rows=sheet.getRow(row);
 						arraysSigmaMatrices[catrgory][ngauss][row][column]=rows.getCell(column).getNumericCellValue();
 					}
 				}
-			}			
+			}	
+			workbook.close();
 		}
 	}
 	
 	public void arrayDeterminantSigmaMatrices() throws FileNotFoundException, IOException {
 		for(int catrgory = 0; catrgory < excelSheets.length; catrgory++) {
+			HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
 			for(int ngauss = 0; ngauss < 30; ngauss++){
-				for(int row= 0; row < 1; row++) {
-					for(int column= 0; column < 1; column++) {
-						HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
-						String sheetname="determinantSigma"+(String.valueOf(ngauss+1));//adding the index to the sheet name
-			            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
+				String sheetname="determinantSigma"+(String.valueOf(ngauss+1));//adding the index to the sheet name
+	            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
+				int column= 0;
+				int row= 0;
 						HSSFRow rows=sheet.getRow(row);
 						arrayDeterminantSigmaMatrices[catrgory][ngauss][row][column]=rows.getCell(column).getNumericCellValue();
-					}
-				}
-			}			
+			}
+			workbook.close();
 		}
-	}
+	}			
+
 	public void arrayinverseSigmaMatrices() throws FileNotFoundException, IOException {
 		for(int catrgory = 0; catrgory < excelSheets.length; catrgory++) {
+			HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
 			for(int ngauss = 0; ngauss < 30; ngauss++){
+				String sheetname="inverseSigma"+(String.valueOf(ngauss+1));//adding the index to the sheet name
+	            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 				for(int row= 0; row < 13; row++) {	
 					for(int column= 0; column < 13; column++) {
-						HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
-						String sheetname="inverseSigma"+(String.valueOf(ngauss+1));//adding the index to the sheet name
-			            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 						HSSFRow rows=sheet.getRow(row);
 						arrayInverseSigmaMatrices[catrgory][ngauss][row][column]=rows.getCell(column).getNumericCellValue();
 					}
 				}
 			}
+			workbook.close();
 		}
 	}
 	
 	public void arraysSigmaDiagonalMatrices() throws FileNotFoundException, IOException {
 		for(int catrgory = 0; catrgory < excelSheets.length; catrgory++) {
+			HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
 			for(int ngauss = 0; ngauss < 30; ngauss++){
+				String sheetname="SigmaDiagonal"+(String.valueOf(ngauss+1));//adding the index to the sheet name
+	            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 					for(int column= 0; column < 13; column++) {
-						HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
-						String sheetname="SigmaDiagonal"+(String.valueOf(ngauss+1));//adding the index to the sheet name
-			            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 						HSSFRow row=sheet.getRow(0);
 						arraysSigmaDiagonalMatrices[catrgory][ngauss][0][column]=row.getCell(column).getNumericCellValue();
 					}
 			}
+			workbook.close();
 		}
 	}
 	
 	public void arraysMuMatrices() throws FileNotFoundException, IOException {
 		for(int catrgory = 0; catrgory < excelSheets.length; catrgory++) {
+			HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
+			String sheetname="mu";//adding the index to the sheet name
+            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 			for(int row= 0; row < 30; row++) {
 				for(int column= 0; column < 13; column++) {
-					HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
-					String sheetname="mu";//adding the index to the sheet name
-		            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 					HSSFRow rows=sheet.getRow(row);
 					arraysMuMatrices[catrgory][row][column]=rows.getCell(column).getNumericCellValue();
 				}
 			}
+			workbook.close();
 		}
 	}
 	public void arraysComponentProportionalMatrices() throws FileNotFoundException, IOException {
 		for(int catrgory = 0; catrgory < excelSheets.length; catrgory++) {
+			HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
+			String sheetname="ComponentProportion";//adding the index to the sheet name
+            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 			for(int column= 0; column < 30; column++) {
-				HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
-				String sheetname="ComponentProportion";//adding the index to the sheet name
-	            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 				HSSFRow rows=sheet.getRow(0);
 				arraysComponentProportionalMatrices[catrgory][0][column]=rows.getCell(column).getNumericCellValue();
 			}
+			workbook.close();
 		}
 	}
 
@@ -168,11 +173,5 @@ public class readExcel {
 			}
 		}
 		return arrayInverseSigma2d;
-	}
-	
-	
-	
-	
-	
-	
+	}	
 }
