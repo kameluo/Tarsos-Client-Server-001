@@ -2,15 +2,15 @@ package mypackagedemo4;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import marytts.util.math.MathUtils;
 
 public class processExcel {
-	
+	static ArrayList<float[]> arraylistaverage=new ArrayList<float[]>();
 	public static String processExcel(double[] mfccArrayDouble) {
 		
 		String[] categories={"babycrying","bird","doorbell","doorknock","dooropen","Footstep","glassbreaking","Shouts","traffic"};
-		
 		
 		boolean matrixOrDiagonal=false;//this is a flag to indicate if we are going to use the whole sigma matrix or the diagonal,true means we are going to use the sigma diagonal,false means the whole matrix
 		int numIterations=1;
@@ -46,10 +46,11 @@ public class processExcel {
 						double[] weights=readexcel.getComponentProportionElement(category);
 						tmp += weights[ngauss] * prob1;
 					}
+					System.out.println("prop of "+categories[category] +" is :" + tmp);
 					double[] logLikelihoods = new double[1];
 					logLikelihoods[numIterations - 1] += Math.log(tmp);
 					probabilityArray[category]=logLikelihoods[numIterations-1];
-					System.out.println("looklikle is :" + probabilityArray[category]);
+					//System.out.println("looklikle is :" + probabilityArray[category]);
 				}
 				double max=probabilityArray[0];
 				for(int i=1;i<probabilityArray.length;i++) {
@@ -61,4 +62,52 @@ public class processExcel {
 		}
 		return categories[(int)postion];
 	}
+	public static void send(float[]array) {
+		arraylistaverage.add(array);
+	}
+	public static float[] averageAndClear() {
+		//deleteMaxMin();
+		int allength=arraylistaverage.size();
+		float[] arraywithoutdivide=new float[13];
+		for(int i=0;i<allength;i++) {
+			float[] arrayinsideal=arraylistaverage.get(i);
+			for(int insidearray=0;insidearray<13;insidearray++) {
+				arraywithoutdivide[insidearray]+=arrayinsideal[insidearray];
+			}
+		}
+		for(int k=0;k<13;k++) {
+			arraywithoutdivide[k]=arraywithoutdivide[k]/allength;	
+		}
+		arraylistaverage.clear();
+		return arraywithoutdivide;
+	}
+	public static void deleteMaxMin() {
+		float max=0f;
+		int indexMax=0;
+		float min=0f;
+		int indexMin=0;
+		for(int i=0;i<arraylistaverage.size();i++) {
+			float[] array=arraylistaverage.get(i);
+			float firstnumber=0f;
+			firstnumber=array[0];
+				if(firstnumber>max){
+					max=firstnumber;
+					indexMax=i;
+				}
+		}
+		arraylistaverage.remove(indexMax);
+		for(int i=0;i<arraylistaverage.size();i++) {
+			float[] array=arraylistaverage.get(i);
+			float firstnumber=0f;
+			firstnumber=array[0];
+				if(firstnumber<min){
+					min=firstnumber;
+					indexMin=i;
+				}
+		}
+		arraylistaverage.remove(indexMin);
+	}
+	
+	
+	
 }
