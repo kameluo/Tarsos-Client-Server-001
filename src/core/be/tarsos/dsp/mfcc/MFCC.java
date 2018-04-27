@@ -62,7 +62,6 @@ public class MFCC implements AudioProcessor {
         this.upperFilterFreq = Math.min(upperFilterFreq, sampleRate / 2);
         calculateFilterBanks();       
     }
-
 	@Override
 	public boolean process(AudioEvent audioEvent) {
 		audioFloatBuffer = audioEvent.getFloatBuffer().clone();

@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import java.lang.Object;
@@ -51,6 +52,8 @@ public class client1 implements clientInterface {
 	private static int client_state = 0; // waiting for connection
 	private static String oldState = "";
 	private static boolean sending = false;
+	
+	
 
 	public static void main(String[] args) throws IOException, LineUnavailableException {
 		//Extracting the data from the Excel Sheets
@@ -65,7 +68,7 @@ public class client1 implements clientInterface {
 		int portmulticast = 3456;
 		InetAddress group = InetAddress.getByName("225.4.5.6");// creating a multicast IP address
 
-		InetSocketAddress socket = new InetSocketAddress("192.168.0.103", portmulticast);// the IP of this machine
+		InetSocketAddress socket = new InetSocketAddress("192.168.0.100", portmulticast);// the IP of this machine
 		InetSocketAddress mg = new InetSocketAddress(group, portmulticast);
 		NetworkInterface ni = NetworkInterface.getByInetAddress(socket.getAddress());
 		MulticastSocket multicastSocket = new MulticastSocket(socket);// opening a multicast socket port
@@ -85,7 +88,7 @@ public class client1 implements clientInterface {
 		// Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means
 		// that the Server is logging in and waiting for receiving the messages from the
 		// sender"clients")
-		SocketAddress socket2 = new InetSocketAddress("192.168.0.103", portUniCast);// the IP of This Machine
+		SocketAddress socket2 = new InetSocketAddress("192.168.0.100", portUniCast);// the IP of This Machine
 		String messagerecieved = recievemessage(socket2);
 
 		System.out.println(getclientPort());
@@ -203,12 +206,11 @@ public class client1 implements clientInterface {
 
 						}// The End of The "handlePitch" Override method in The
 							// PitchDetectionHandler-handler Object Class
-						
 					};// The End Of The PitchDetectionHandler-handler Object Class
-					AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(44100, 16384, 0);
-					adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 44100, 16384, handler));
+					AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(16000, 400, 0);
+					adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 16000, 400, handler));
 					
-					MFCC mfcc = new MFCC(16384, 44100, 40, 50, 300, 3000);
+					MFCC mfcc = new MFCC(400,16000f,13,20,300f,3700f);
 					adp.addAudioProcessor(mfcc);
 					adp.addAudioProcessor(new AudioProcessor() {
 				        @Override
@@ -218,17 +220,25 @@ public class client1 implements clientInterface {
 				        @Override
 				        public boolean process(AudioEvent audioEvent) {
 				        		float[] mfccArray = mfcc.getMFCC();
-				        		double[] mfccArrayDouble=new double[13];
-				        		for(int k=0;k<=12;k++) {
-				        			mfccArrayDouble[k]=mfccArray[k];
+				        		
+				        		
+				        		processExcel.sendRealTime(mfccArray);
+				        		
+				        		if(processExcel.arraylistMFCCrealtime.size()>=40) {
+				        		
+				        		float[] mfccAverageArray=processExcel.averageAndClearRealTime();
+					        		double[] mfccArrayDouble=new double[13];
+					        		for(int k=0;k<=12;k++) {
+					        			mfccArrayDouble[k]=mfccAverageArray[k];
+					        		}
+					        	String category=processExcel.processExcel(mfccArrayDouble);
+					        	System.out.println("The Category is:"+category);
 				        		}
-				        		processExcel processexcel=new processExcel();
-			        			String category=processexcel.processExcel(mfccArrayDouble);
-			        			System.out.println("The Category is:"+category);
 					       return true;
 				        }
 				    });
 					adp.run();
+					
 					
 				} // --------------------------------------------------check here
 

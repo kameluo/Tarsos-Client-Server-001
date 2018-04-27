@@ -8,13 +8,14 @@ import marytts.util.math.MathUtils;
 
 public class processExcel {
 	static ArrayList<float[]> arraylistaverage=new ArrayList<float[]>();
+	static ArrayList<float[]> arraylistMFCCrealtime=new ArrayList<float[]>();
 	public static String processExcel(double[] mfccArrayDouble) {
 		
 		String[] categories={"babycrying","bird","doorbell","doorknock","dooropen","Footstep","glassbreaking","Shouts","traffic"};
 		
 		boolean matrixOrDiagonal=false;//this is a flag to indicate if we are going to use the whole sigma matrix or the diagonal,true means we are going to use the sigma diagonal,false means the whole matrix
 		int numIterations=1;
-		double postion=0.0;
+		int postion=10;
 		
 		readExcel readexcel=new readExcel();
 		
@@ -44,26 +45,34 @@ public class processExcel {
 						
 						//System.out.println("prooop is :" + prob2);
 						double[] weights=readexcel.getComponentProportionElement(category);
-						tmp += weights[ngauss] * prob1;
+						tmp +=weights[ngauss]*prob1;
 					}
-					System.out.println("prop of "+categories[category] +" is :" + tmp);
+					
 					double[] logLikelihoods = new double[1];
 					logLikelihoods[numIterations - 1] += Math.log(tmp);
 					probabilityArray[category]=logLikelihoods[numIterations-1];
-					//System.out.println("looklikle is :" + probabilityArray[category]);
+					System.out.println("looklikle is :" +categories[category] + " is  :"+tmp);
 				}
 				double max=probabilityArray[0];
 				for(int i=1;i<probabilityArray.length;i++) {
 			        if(max<probabilityArray[i]) {
-			        	postion=(double)i;
+			        	postion=i;
 			            max=probabilityArray[i];
 			        }
 				}
+				if (max > 0.1) {
+					System.out.println("prop of "+categories[postion] +" is :" +probabilityArray[postion]);
+					}
 		}
-		return categories[(int)postion];
+		return null;
+		//return categories[postion];
 	}
 	public static void send(float[]array) {
 		arraylistaverage.add(array);
+	}
+	
+	public static void sendRealTime(float[]array) {
+		arraylistMFCCrealtime.add(array);
 	}
 	public static float[] averageAndClear() {
 		//deleteMaxMin();
@@ -78,7 +87,7 @@ public class processExcel {
 		for(int k=0;k<13;k++) {
 			arraywithoutdivide[k]=arraywithoutdivide[k]/allength;	
 		}
-		arraylistaverage.clear();
+		//arraylistaverage.clear();
 		return arraywithoutdivide;
 	}
 	public static void deleteMaxMin() {
@@ -107,7 +116,21 @@ public class processExcel {
 		}
 		arraylistaverage.remove(indexMin);
 	}
-	
+	public static float[] averageAndClearRealTime() {
+		int allength=arraylistMFCCrealtime.size();
+		float[] arraywithoutdivide=new float[13];
+		for(int i=0;i<allength;i++) {
+			float[] arrayinsideal=arraylistMFCCrealtime.get(i);
+			for(int insidearray=0;insidearray<13;insidearray++) {
+				arraywithoutdivide[insidearray]+=arrayinsideal[insidearray];
+			}
+		}
+		for(int k=0;k<13;k++) {
+			arraywithoutdivide[k]=arraywithoutdivide[k]/allength;	
+		}
+		arraylistMFCCrealtime.clear();
+		return arraywithoutdivide;
+	}
 	
 	
 }
