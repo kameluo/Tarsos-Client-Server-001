@@ -62,9 +62,11 @@ public class MFCC implements AudioProcessor {
         this.upperFilterFreq = Math.min(upperFilterFreq, sampleRate / 2);
         calculateFilterBanks();       
     }
+	int i=0;
 	@Override
 	public boolean process(AudioEvent audioEvent) {
 		audioFloatBuffer = audioEvent.getFloatBuffer().clone();
+		System.out.println("Audio Event "+ i++);
 
         // Magnitude Spectrum
         float bin[] = magnitudeSpectrum(audioFloatBuffer);
@@ -243,7 +245,7 @@ public class MFCC implements AudioProcessor {
      * called by: featureExtraction
      */
     private static float inverseMel(double x) {
-        return (float) (700 * (Math.pow(10, x / 1127) - 1));
+        return (float) (700 * (Math.pow(10, x / 1127)-1));//(700 * (Math.pow(10, x / 1127) -1))
     }
     
     /**

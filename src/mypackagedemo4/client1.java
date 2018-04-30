@@ -207,16 +207,12 @@ public class client1 implements clientInterface {
 						}// The End of The "handlePitch" Override method in The
 							// PitchDetectionHandler-handler Object Class
 					};// The End Of The PitchDetectionHandler-handler Object Class
-					AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(16000, 400, 0);
+					AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(16000, 400,240);
 					adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 16000, 400, handler));
 					
 					MFCC mfcc = new MFCC(400,16000f,13,20,300f,3700f);
 					adp.addAudioProcessor(mfcc);
 					adp.addAudioProcessor(new AudioProcessor() {
-				        @Override
-				        public void processingFinished() {
-				            System.out.println("DONE");
-				        }
 				        @Override
 				        public boolean process(AudioEvent audioEvent) {
 				        		float[] mfccArray = mfcc.getMFCC();
@@ -235,6 +231,10 @@ public class client1 implements clientInterface {
 					        	System.out.println("The Category is:"+category);
 				        		}
 					       return true;
+				        }
+				        @Override
+				        public void processingFinished() {
+				            System.out.println("DONE");
 				        }
 				    });
 					adp.run();

@@ -37,21 +37,32 @@ public class processExcel {
 		}else{
 			double[] probabilityArray=new double[9];
 				for (int category = 0; category < categories.length; category++) {
-					double tmp = 0;
+					double tmp = 0.0;
 					for (int ngauss = 0; ngauss < 30; ngauss++) {
 						double prob1=MathUtils.getGaussianPdfValue(mfccArrayDouble,readexcel.getMuArray1d(category,ngauss),readexcel.getArrayDeterminantSigmaMatrices(category,ngauss),readexcel.getArrayInverseSigmaMatrices(category,ngauss));
 						
 						double prob2=MathUtils.getGaussianPdfValue(mfccArrayDouble,readexcel.getMuArray1d(category,ngauss), readexcel.getArrayInverseSigmaMatrices(category,ngauss),MathUtils.getGaussianPdfValueConstantTerm(mfccArrayDouble.length, readexcel.getArrayDeterminantSigmaMatrices(category,ngauss)));
 						
-						//System.out.println("prooop is :" + prob2);
+						//System.out.println("prooop is :" + prob1);
 						double[] weights=readexcel.getComponentProportionElement(category);
-						tmp +=weights[ngauss]*prob1;
+						//tmp +=weights[ngauss]*prob1;
+						
+						if(prob1!=Double.NaN || prob1!=Double.NEGATIVE_INFINITY || prob1!=Double.POSITIVE_INFINITY || prob1!=0.0) {
+							tmp +=weights[ngauss]*prob1;
+						}else {
+							tmp +=0.0;
+						}
+						
+						System.out.println("----------------------------->"+tmp);
 					}
-					
 					double[] logLikelihoods = new double[1];
-					logLikelihoods[numIterations - 1] += Math.log(tmp);
+					if(tmp!=Double.NaN || tmp!=Double.NEGATIVE_INFINITY || tmp!=Double.POSITIVE_INFINITY || tmp!=0.0) {
+					logLikelihoods[numIterations - 1] +=Math.log(tmp);
+					}else {
+					logLikelihoods[numIterations - 1] +=0.0;
+					}
 					probabilityArray[category]=logLikelihoods[numIterations-1];
-					System.out.println("looklikle is :" +categories[category] + " is  :"+tmp);
+					//System.out.println("looklikle is :" +categories[category] + " is  :"+tmp);
 				}
 				double max=probabilityArray[0];
 				for(int i=1;i<probabilityArray.length;i++) {
@@ -64,8 +75,8 @@ public class processExcel {
 					System.out.println("prop of "+categories[postion] +" is :" +probabilityArray[postion]);
 					}
 		}
-		return null;
-		//return categories[postion];
+		//return null;
+		return categories[postion];
 	}
 	public static void send(float[]array) {
 		arraylistaverage.add(array);
