@@ -68,7 +68,7 @@ public class client1 implements clientInterface {
 		int portmulticast = 3456;
 		InetAddress group = InetAddress.getByName("225.4.5.6");// creating a multicast IP address
 
-		InetSocketAddress socket = new InetSocketAddress("192.168.0.100", portmulticast);// the IP of this machine
+		InetSocketAddress socket = new InetSocketAddress("192.168.0.103", portmulticast);// the IP of this machine
 		InetSocketAddress mg = new InetSocketAddress(group, portmulticast);
 		NetworkInterface ni = NetworkInterface.getByInetAddress(socket.getAddress());
 		MulticastSocket multicastSocket = new MulticastSocket(socket);// opening a multicast socket port
@@ -88,7 +88,7 @@ public class client1 implements clientInterface {
 		// Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means
 		// that the Server is logging in and waiting for receiving the messages from the
 		// sender"clients")
-		SocketAddress socket2 = new InetSocketAddress("192.168.0.100", portUniCast);// the IP of This Machine
+		SocketAddress socket2 = new InetSocketAddress("192.168.0.103", portUniCast);// the IP of This Machine
 		String messagerecieved = recievemessage(socket2);
 
 		System.out.println(getclientPort());
@@ -215,19 +215,15 @@ public class client1 implements clientInterface {
 					adp.addAudioProcessor(new AudioProcessor() {
 				        @Override
 				        public boolean process(AudioEvent audioEvent) {
-				        		float[] mfccArray = mfcc.getMFCC();
-				        		
-				        		
-				        		processExcel.sendRealTime(mfccArray);
-				        		
-				        		if(processExcel.arraylistMFCCrealtime.size()>=40) {
-				        		
-				        		float[] mfccAverageArray=processExcel.averageAndClearRealTime();
-					        		double[] mfccArrayDouble=new double[13];
-					        		for(int k=0;k<=12;k++) {
-					        			mfccArrayDouble[k]=mfccAverageArray[k];
-					        		}
-					        	String category=processExcel.processExcel(mfccArrayDouble);
+				        		float[] mfccArrayFloat = mfcc.getMFCC();
+				        		double[] mfccArrayDouble=new double[13];
+				        		for(int k=0;k<=12;k++) {
+				        			mfccArrayDouble[k]=mfccArrayFloat[k];
+				        		}
+				        		processExcel.sendRealTime(mfccArrayDouble);
+				        		if(processExcel.arrayListMFCCReaTime.size()>=40) {
+				        		double[] mfccAverageArray=processExcel.averageAndClearRealTime();
+					        	String category=processExcel.processExcel(mfccAverageArray);
 					        	System.out.println("The Category is:"+category);
 				        		}
 					       return true;
@@ -238,8 +234,6 @@ public class client1 implements clientInterface {
 				        }
 				    });
 					adp.run();
-					
-					
 				} // --------------------------------------------------check here
 
 				// should we put those to conditions with the 200 message

@@ -65,7 +65,7 @@ public class MFCC implements AudioProcessor {
 	int i=0;
 	@Override
 	public boolean process(AudioEvent audioEvent) {
-		audioFloatBuffer = audioEvent.getFloatBuffer().clone();
+		audioFloatBuffer = audioEvent.getFloatBuffer().clone();//something diffrent here,iam obtaining diffrenets number of frames in matlab (ex 31445)--kamel 4-5-2018
 		System.out.println("Audio Event "+ i++);
 
         // Magnitude Spectrum

@@ -30,8 +30,8 @@ import core.be.tarsos.dsp.mfcc.MFCC;
 import jvm.be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 
 public class tryAudioFileMFCC {
-	static ArrayList<float[]> arraylistaverageoverall=new ArrayList<float[]>();
-	static float[] mfccArrayavareageee = new float[13];
+	static ArrayList<double[]> arraylistaverageoverall=new ArrayList<double[]>();
+	//static float[] mfccArrayavareageee = new float[13];
 	static float down=1;
 	public static void main(String[] args) throws IOException, UnsupportedAudioFileException {
 			readExcel readexcel=new readExcel();
@@ -52,9 +52,9 @@ public class tryAudioFileMFCC {
 		    
 		    
 		    File audioFile = new File("door-bell13.wav");
-			
-		    
-		    	
+		    AudioInputStream audioInputStream=AudioSystem.getAudioInputStream(audioFile);
+		    System.out.println("framelength"+audioInputStream.getFrameLength());
+		    int frameNumber=(int)audioInputStream.getFrameLength();
 	    	/*int length=(int) soundwav.length();
 	    	byte[] bytes=new byte[length];
 	    	audioInputStream.read(bytes,44,length);*/
@@ -77,8 +77,8 @@ public class tryAudioFileMFCC {
 	    		InputStream inStream1=new ByteArrayInputStream(twoBytes); 
 	}*/
 	    	
-	    	AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(audioFile, bufferSize, bufferOverlap);
-			AudioFormat format = AudioSystem.getAudioFileFormat(audioFile).getFormat();
+	    	AudioDispatcher dispatcher = AudioDispatcherFactory.fromFile(audioFile,bufferSize, bufferOverlap);
+			//AudioFormat format = AudioSystem.getAudioFileFormat(audioFile).getFormat();
 	    	
 	    	//TarsosDSPAudioFormat format=new TarsosDSPAudioFormat(sampleRate,bufferSize,1,true,false);
 	    	//TarsosDSPAudioInputStream input = new UniversalAudioInputStream(inStream,format);
@@ -93,21 +93,25 @@ public class tryAudioFileMFCC {
 			        int i=1;
 			        @Override
 			        public boolean process(AudioEvent audioEvent) {
-			        	float[] mfccArray = mfcc.getMFCC(); 
-			        	//float[] mfccArray = {43.1617f,-2.5968f,-2.9166f,-8.3133f,-10.244f,-22.6054f,-15.5679f,-2.5437f,14.0194f,7.8595f,13.7796f,8.0754f,3.9074f};
-			        	//float[] mfccArray = {55.1195f,-9.3242f,-0.5767f,3.3303f,-4.3555f,-3.0318f,2.2356f,-6.6261f,-6.8031f,-9.2916f,-6.0330f,-2.6578f,3.9958f};
-			        				        	
+			        	float[] mfccArrayFloat = mfcc.getMFCC(); 
+			        	//float[] mfccArrayFloat = {43.1617f,-2.5968f,-2.9166f,-8.3133f,-10.244f,-22.6054f,-15.5679f,-2.5437f,14.0194f,7.8595f,13.7796f,8.0754f,3.9074f};
+			        	//float[] mfccArrayFloat = {55.1195f,-9.3242f,-0.5767f,3.3303f,-4.3555f,-3.0318f,2.2356f,-6.6261f,-6.8031f,-9.2916f,-6.0330f,-2.6578f,3.9958f};
+			        		
+			        	double[] mfccArrayDouble=new double[13];
+		        		for(int k=0;k<=12;k++) {
+		        			mfccArrayDouble[k]=mfccArrayFloat[k];
+		        		}
 			        	
-			        	System.out.println(mfccArray[0]+" "+mfccArray[1]+" "+mfccArray[2]+" "+mfccArray[3]+" "+mfccArray[4]+" "+mfccArray[5]+" "+mfccArray[6]+" "+mfccArray[7]+" "+mfccArray[8]+" "+mfccArray[9]+" "+mfccArray[10]+" "+mfccArray[11]+" "+mfccArray[12]);
-			        	processexcel.send(mfccArray);
+			        	System.out.println(mfccArrayDouble[0]+" "+mfccArrayDouble[1]+" "+mfccArrayDouble[2]+" "+mfccArrayDouble[3]+" "+mfccArrayDouble[4]+" "+mfccArrayDouble[5]+" "+mfccArrayDouble[6]+" "+mfccArrayDouble[7]+" "+mfccArrayDouble[8]+" "+mfccArrayDouble[9]+" "+mfccArrayDouble[10]+" "+mfccArrayDouble[11]+" "+mfccArrayDouble[12]);
+			        	processexcel.send(mfccArrayDouble);
 			        	System.out.println("Event "+i++);
 			            return true;
 			       }
 			        @Override
 			        public void processingFinished() {
-			        	float[] array=processexcel.averageAndClear();
-			        	arraylistaverageoverall.add(array);
-			        	System.out.println(array[0]+" "+array[1]+" "+array[2]+" "+array[3]+" "+array[4]+" "+array[5]+" "+array[6]+" "+array[7]+" "+array[8]+" "+array[9]+" "+array[10]+" "+array[11]+" "+array[12]);
+			        	double[] array=processexcel.averageAndClear();
+			        	//arraylistaverageoverall.add(array); 
+			        	System.out.println("--------->"+array[0]+" "+array[1]+" "+array[2]+" "+array[3]+" "+array[4]+" "+array[5]+" "+array[6]+" "+array[7]+" "+array[8]+" "+array[9]+" "+array[10]+" "+array[11]+" "+array[12]);
 				        
 				        double[] mfccArrayDouble=new double[13];
 		        		for(int k=0;k<=12;k++) {
@@ -122,16 +126,16 @@ public class tryAudioFileMFCC {
 			    dispatcher.run();
 		  
 		    
-		    float[] array=averageAndCleararraylistaverageoverall();
+			    double[] array=averageAndCleararraylistaverageoverall();
         	System.out.println(array[0]+" "+array[1]+" "+array[2]+" "+array[3]+" "+array[4]+" "+array[5]+" "+array[6]+" "+array[7]+" "+array[8]+" "+array[9]+" "+array[10]+" "+array[11]+" "+array[12]);
 	}
 
-	public static float[] averageAndCleararraylistaverageoverall() {
+	public static double[] averageAndCleararraylistaverageoverall() {
 		//deleteMaxMin();
 		int allength=arraylistaverageoverall.size();
-		float[] arraywithoutdivide=new float[13];
+		double[] arraywithoutdivide=new double[13];
 		for(int i=0;i<allength;i++) {
-			float[] arrayinsideal=arraylistaverageoverall.get(i);
+			double[] arrayinsideal=arraylistaverageoverall.get(i);
 			for(int insidearray=0;insidearray<13;insidearray++) {
 				arraywithoutdivide[insidearray]+=arrayinsideal[insidearray];
 			}
