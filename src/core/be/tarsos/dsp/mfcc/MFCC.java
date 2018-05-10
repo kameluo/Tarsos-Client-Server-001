@@ -236,7 +236,7 @@ public class MFCC implements AudioProcessor {
      * @return Mel-Frequency
      */
     protected static float freqToMel(float freq){
-        return (float) (1127 * log10(1 + freq / 700));
+    	return (float) (2595 * log10(1 + freq / 700));
     }
     
     /**
@@ -245,7 +245,7 @@ public class MFCC implements AudioProcessor {
      * called by: featureExtraction
      */
     private static float inverseMel(double x) {
-        return (float) (700 * (Math.pow(10, x / 1127)-1));//(700 * (Math.pow(10, x / 1127) -1))
+    	return (float) (700 * (Math.pow(10, x / 2595) - 1));
     }
     
     /**
@@ -256,7 +256,7 @@ public class MFCC implements AudioProcessor {
      * @return base 10 logarithm of the input values
      */
     protected static float log10(float value){
-        return (float) (Math.log(value) / Math.log(10));
+    	return (float) (Math.log(value) / Math.log(10));
     }
 
 	public float[] getMFCC() {

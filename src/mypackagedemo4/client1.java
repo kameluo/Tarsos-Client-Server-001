@@ -68,7 +68,7 @@ public class client1 implements clientInterface {
 		int portmulticast = 3456;
 		InetAddress group = InetAddress.getByName("225.4.5.6");// creating a multicast IP address
 
-		InetSocketAddress socket = new InetSocketAddress("192.168.0.103", portmulticast);// the IP of this machine
+		InetSocketAddress socket = new InetSocketAddress("192.168.0.101", portmulticast);// the IP of this machine
 		InetSocketAddress mg = new InetSocketAddress(group, portmulticast);
 		NetworkInterface ni = NetworkInterface.getByInetAddress(socket.getAddress());
 		MulticastSocket multicastSocket = new MulticastSocket(socket);// opening a multicast socket port
@@ -88,7 +88,7 @@ public class client1 implements clientInterface {
 		// Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means
 		// that the Server is logging in and waiting for receiving the messages from the
 		// sender"clients")
-		SocketAddress socket2 = new InetSocketAddress("192.168.0.103", portUniCast);// the IP of This Machine
+		SocketAddress socket2 = new InetSocketAddress("192.168.0.101", portUniCast);// the IP of This Machine
 		String messagerecieved = recievemessage(socket2);
 
 		System.out.println(getclientPort());
@@ -206,11 +206,58 @@ public class client1 implements clientInterface {
 
 						}// The End of The "handlePitch" Override method in The
 							// PitchDetectionHandler-handler Object Class
+						
+						
+						
 					};// The End Of The PitchDetectionHandler-handler Object Class
+					
+					//AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(44100,16384, 0);
+					//adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 44100, 16384, handler));
 					AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(16000, 400,240);
 					adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 16000, 400, handler));
 					
-					MFCC mfcc = new MFCC(400,16000f,13,20,300f,3700f);
+					
+					
+					Thread t1=new Thread(new Runnable() {
+						@Override
+						public void run() {
+							
+							
+							
+							//starting the part of the MFCC
+							//MFCC mfcc = new MFCC(16384,44100f,13,20,300f,3700f);
+							MFCC mfcc = new MFCC(400,16000f,13,20,300f,3700f);
+							adp.addAudioProcessor(mfcc);
+							adp.addAudioProcessor(new AudioProcessor() {
+						        @Override
+						        public boolean process(AudioEvent audioEvent) {
+						        		float[] mfccArrayFloat = mfcc.getMFCC();
+						        		double[] mfccArrayDouble=new double[13];
+						        		for(int k=0;k<=12;k++) {
+						        			mfccArrayDouble[k]=mfccArrayFloat[k];
+						        		}
+						        		processExcel.sendRealTime(mfccArrayDouble);
+						        		if(processExcel.arrayListMFCCReaTime.size()>=40) {
+						        		double[] mfccAverageArray=processExcel.averageAndClearRealTime();
+							        	String category=processExcel.processExcel(mfccAverageArray);
+							        	System.out.println("The Category is:"+category);
+						        		}
+							       return true;
+						        }
+						        @Override
+						        public void processingFinished() {
+						            System.out.println("DONE");
+						        }
+						    });
+							
+							
+						}
+						
+					});t1.start();
+					/*
+					//starting the part of the MFCC
+					MFCC mfcc = new MFCC(16384,44100f,13,20,300f,3700f);
+					//MFCC mfcc = new MFCC(400,16000f,13,20,300f,3700f);
 					adp.addAudioProcessor(mfcc);
 					adp.addAudioProcessor(new AudioProcessor() {
 				        @Override
@@ -233,6 +280,9 @@ public class client1 implements clientInterface {
 				            System.out.println("DONE");
 				        }
 				    });
+					
+					
+					*/
 					adp.run();
 				} // --------------------------------------------------check here
 

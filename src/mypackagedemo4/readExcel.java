@@ -28,7 +28,7 @@ public class readExcel {
 		arraysSigmaMatrices();
 		arrayDeterminantSigmaMatrices();
 		arrayinverseSigmaMatrices();
-		arraysSigmaDiagonalMatrices();
+		//arraysSigmaDiagonalMatrices();
 		arraysMuMatrices();
 		arraysComponentProportionalMatrices();
 		System.out.println("Done");
