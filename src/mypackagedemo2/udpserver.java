@@ -10,10 +10,6 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Scanner;
 
-import com.googlecode.javacv.CanvasFrame;
-import com.googlecode.javacv.FrameGrabber.Exception;
-import com.googlecode.javacv.OpenCVFrameGrabber;
-import com.googlecode.javacv.cpp.opencv_core.IplImage;
 public class udpserver {
 //its workingggg
 	public static void main(String[] args) throws IOException,InterruptedException,SocketException,SocketTimeoutException,IllegalArgumentException,ArrayIndexOutOfBoundsException {
@@ -103,7 +99,7 @@ public class udpserver {
 							Thread tcamera=new Thread(new Runnable() {
 								@Override
 								public void run() {
-									try {
+									try {/*
 										OpenCVFrameGrabber frameGrabber = new OpenCVFrameGrabber("http://10.82.240.143:8080/mjpg/video.mjpg"); 
 										frameGrabber.setFormat("mjpeg");
 										frameGrabber.start();
@@ -118,7 +114,7 @@ public class udpserver {
 										canvasFrame.dispose();
 										//System.exit(0);
 										
-									} catch (Exception e) {
+									*/} catch (Exception e) {
 										e.printStackTrace();
 									}
 								}

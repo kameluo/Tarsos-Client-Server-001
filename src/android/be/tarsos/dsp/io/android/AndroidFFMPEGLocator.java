@@ -1,4 +1,4 @@
-package be.tarsos.dsp.io.android;
+package android.be.tarsos.dsp.io.android;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -133,7 +133,7 @@ public class AndroidFFMPEGLocator {
     }
 
     private boolean isCPUArchitectureSupported(String alias) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+       /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             for (String supportedAlias : Build.SUPPORTED_ABIS) {
                 if (supportedAlias.equals(alias))
                     return true;
@@ -142,7 +142,7 @@ public class AndroidFFMPEGLocator {
             return false;
         } else {
             return Build.CPU_ABI.equals(alias);
-        }
+        }*/ return false;//commented by kamel 23-5-2018
     }
 
     private CPUArchitecture getCPUArchitecture() {

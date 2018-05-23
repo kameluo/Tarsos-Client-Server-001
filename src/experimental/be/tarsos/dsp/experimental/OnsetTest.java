@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.org.apache.xml.internal.resolver.helpers.FileURL;
+//import com.sun.org.apache.xml.internal.resolver.helpers.FileURL;//by kamel 23-5-2018
 
 import core.be.tarsos.dsp.onsets.ComplexOnsetDetector;
 import core.be.tarsos.dsp.onsets.OnsetHandler;

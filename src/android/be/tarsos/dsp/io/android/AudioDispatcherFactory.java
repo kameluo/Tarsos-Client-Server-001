@@ -21,14 +21,14 @@
 * 
 */
 
-package be.tarsos.dsp.io.android;
+package android.be.tarsos.dsp.io.android;
 
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import be.tarsos.dsp.AudioDispatcher;
-import be.tarsos.dsp.io.PipedAudioStream;
-import be.tarsos.dsp.io.TarsosDSPAudioFormat;
-import be.tarsos.dsp.io.TarsosDSPAudioInputStream;
+import core.be.tarsos.dsp.AudioDispatcher;
+import core.be.tarsos.dsp.io.PipedAudioStream;
+import core.be.tarsos.dsp.io.TarsosDSPAudioFormat;
+import core.be.tarsos.dsp.io.TarsosDSPAudioInputStream;
 
 /**
  * The Factory creates {@link AudioDispatcher} objects from the

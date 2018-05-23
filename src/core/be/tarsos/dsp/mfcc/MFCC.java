@@ -129,6 +129,7 @@ public class MFCC implements AudioProcessor {
         for (int i = 1; i <= amountOfMelFilters; i++) {
             float fc = (inverseMel(mel[0] + factor * i) / sampleRate) * samplesPerFrame;
             centerFrequencies[i - 1] = Math.round(fc);
+            
            //System.out.println(fc*100f);
         }
     }
@@ -211,7 +212,7 @@ public class MFCC implements AudioProcessor {
         return cepc;
     }
     
-//    /**
+//    /********************************************************************************************
 //     * calculates center frequency<br>
 //     * calls: none<br>
 //     * called by: featureExtraction
@@ -219,14 +220,14 @@ public class MFCC implements AudioProcessor {
 //     * @return Center Frequency
 //     */
 //    private static float centerFreq(int i,float samplingRate){
-//        double mel[] = new double[2];
-//        mel[0] = freqToMel(lowerFilterFreq);
-//        mel[1] = freqToMel(samplingRate / 2);
-//        
-//        // take inverse mel of:
-//        double temp = mel[0] + ((mel[1] - mel[0]) / (amountOfMelFilters + 1)) * i;
-//        return inverseMel(temp);
-//    }
+//       double mel[] = new double[2];
+//       mel[0] = freqToMel(lowerFilterFreq);
+//       mel[1] = freqToMel(samplingRate / 2);
+//       
+//       //take inverse mel of:
+//     double temp = mel[0] + ((mel[1] - mel[0]) / (amountOfMelFilters + 1)) * i;
+//       return inverseMel(temp);
+//  }
     
     /**
      * convert frequency to mel-frequency<br>

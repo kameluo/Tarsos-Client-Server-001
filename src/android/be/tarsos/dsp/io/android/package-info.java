@@ -25,4 +25,4 @@
 /**
  * Concrete implementations of the abstract audio IO for Dalvik/Android.
  */
-package be.tarsos.dsp.io.jvm;
+package android.be.tarsos.dsp.io.android;

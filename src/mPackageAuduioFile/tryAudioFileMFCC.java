@@ -1,4 +1,4 @@
-package mypackagedemo4;
+package mPackageAuduioFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -54,6 +54,9 @@ public class tryAudioFileMFCC {
 		    File audioFile = new File("door-bell13.wav");
 		    AudioInputStream audioInputStream=AudioSystem.getAudioInputStream(audioFile);
 		    System.out.println("framelength"+audioInputStream.getFrameLength());
+		    System.out.println("SampleSizeInBits="+audioInputStream.getFormat().getSampleSizeInBits());
+	    	System.out.println("FrameRate="+audioInputStream.getFormat().getFrameRate());
+	    	System.out.println("FrameSize="+audioInputStream.getFormat().getFrameSize());
 		    int frameNumber=(int)audioInputStream.getFrameLength();
 	    	/*int length=(int) soundwav.length();
 	    	byte[] bytes=new byte[length];
@@ -110,7 +113,7 @@ public class tryAudioFileMFCC {
 			        @Override
 			        public void processingFinished() {
 			        	double[] array=processexcel.averageAndClear();
-			        	//arraylistaverageoverall.add(array); 
+			        	arraylistaverageoverall.add(array); 
 			        	System.out.println("--------->"+array[0]+" "+array[1]+" "+array[2]+" "+array[3]+" "+array[4]+" "+array[5]+" "+array[6]+" "+array[7]+" "+array[8]+" "+array[9]+" "+array[10]+" "+array[11]+" "+array[12]);
 				        
 				        double[] mfccArrayDouble=new double[13];

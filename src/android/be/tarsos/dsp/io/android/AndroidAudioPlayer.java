@@ -1,14 +1,14 @@
-package be.tarsos.dsp.io.android;
+package android.be.tarsos.dsp.io.android;
 
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.util.Log;
 
-import be.tarsos.dsp.AudioEvent;
-import be.tarsos.dsp.AudioProcessor;
-import be.tarsos.dsp.io.TarsosDSPAudioFloatConverter;
-import be.tarsos.dsp.io.TarsosDSPAudioFormat;
+import core.be.tarsos.dsp.AudioEvent;
+import core.be.tarsos.dsp.AudioProcessor;
+import core.be.tarsos.dsp.io.TarsosDSPAudioFloatConverter;
+import core.be.tarsos.dsp.io.TarsosDSPAudioFormat;
 
 /**
  * Plays audio from an {@link be.tarsos.dsp.AudioDispatcher} or {@link be.tarsos.dsp.AudioGenerator}

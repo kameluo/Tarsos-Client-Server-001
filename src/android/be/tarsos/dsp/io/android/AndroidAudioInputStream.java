@@ -21,13 +21,13 @@
 * 
 */
 
-package be.tarsos.dsp.io.android;
+package android.be.tarsos.dsp.io.android;
 
 import java.io.IOException;
 
 import android.media.AudioRecord;
-import be.tarsos.dsp.io.TarsosDSPAudioFormat;
-import be.tarsos.dsp.io.TarsosDSPAudioInputStream;
+import core.be.tarsos.dsp.io.TarsosDSPAudioFormat;
+import core.be.tarsos.dsp.io.TarsosDSPAudioInputStream;
 
 public class AndroidAudioInputStream implements TarsosDSPAudioInputStream{
 	

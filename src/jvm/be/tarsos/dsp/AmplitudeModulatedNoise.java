@@ -4,8 +4,11 @@ import java.util.Random;
 
 import javax.sound.sampled.LineUnavailableException;
 
-import core.be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
-import core.be.tarsos.dsp.io.jvm.AudioPlayer;
+import core.be.tarsos.dsp.AudioDispatcher;
+import core.be.tarsos.dsp.AudioEvent;
+import core.be.tarsos.dsp.AudioProcessor;
+import jvm.be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
+import jvm.be.tarsos.dsp.io.jvm.AudioPlayer;
 
 public class AmplitudeModulatedNoise implements AudioProcessor {
 	
