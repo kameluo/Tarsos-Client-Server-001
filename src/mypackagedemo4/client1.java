@@ -47,7 +47,8 @@ public class client1 implements clientInterface {
 		// Creating an Object for Sending the Multicast messages
 		int portmulticast = 3456;
 		InetAddress group = InetAddress.getByName("225.4.5.6");// creating a multicast IP address
-
+		
+		// TODO in the up coming line,write the IP of Your Machine and the multicast port which is 3456
 		InetSocketAddress socket = new InetSocketAddress("192.168.0.101", portmulticast);// the IP of this machine
 		InetSocketAddress mg = new InetSocketAddress(group, portmulticast);
 		NetworkInterface ni = NetworkInterface.getByInetAddress(socket.getAddress());
@@ -67,6 +68,7 @@ public class client1 implements clientInterface {
 		// Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means
 		// that the Server is logging in and waiting for receiving the messages from the
 		// Client side
+		// TODO in the up coming line,write the IP of Your Machine and the unicast port which is 20002
 		SocketAddress socket2 = new InetSocketAddress("192.168.0.101", portUniCast);// the IP of This Machine
 		String messagerecieved = recievemessage(socket2);
 

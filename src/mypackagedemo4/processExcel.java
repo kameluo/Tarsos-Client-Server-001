@@ -1,7 +1,5 @@
 package mypackagedemo4;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import marytts.util.math.MathUtils;
