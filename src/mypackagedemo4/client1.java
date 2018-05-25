@@ -68,7 +68,7 @@ public class client1 implements clientInterface {
 		// Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means
 		// that the Server is logging in and waiting for receiving the messages from the
 		// Client side
-		// TODO in the up coming line,write the IP of Your Machine and the unicast port which is 20002
+		// TODO in the up coming line,write the IP of Your Machine and the unicast port which is 20002  
 		SocketAddress socket2 = new InetSocketAddress("192.168.0.101", portUniCast);// the IP of This Machine
 		String messagerecieved = recievemessage(socket2);
 

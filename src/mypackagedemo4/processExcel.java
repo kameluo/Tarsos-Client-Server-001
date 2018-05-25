@@ -18,7 +18,7 @@ public class processExcel {
 			double[] probabilityArray=new double[9];
 				for (int category = 0; category < categories.length; category++) {
 					double tmp = 0.0;
-					//double logLikelihoods=0.0;
+					//double logLikelihoods=0.0;  
 					for (int ngauss = 0; ngauss < 30; ngauss++) {
 						double prob1=MathUtils.getGaussianPdfValue(mfccArrayDouble,readexcel.getMuArray1d(category,ngauss),readexcel.getArrayDeterminantSigmaMatrices(category,ngauss),readexcel.getArrayInverseSigmaMatrices(category,ngauss));
 						//double prob2=MathUtils.getGaussianPdfValue(mfccArrayDouble,readexcel.getMuArray1d(category,ngauss), readexcel.getArrayInverseSigmaMatrices(category,ngauss),MathUtils.getGaussianPdfValueConstantTerm(mfccArrayDouble.length, readexcel.getArrayDeterminantSigmaMatrices(category,ngauss)));
