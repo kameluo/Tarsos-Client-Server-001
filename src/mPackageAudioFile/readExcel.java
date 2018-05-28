@@ -1,4 +1,4 @@
-package mPackageAuduioFile;
+package mPackageAudioFile;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

@@ -32,7 +32,7 @@ import jvm.be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 
 public class client1 implements clientInterface {
 
-	private static int client_state = 0; // waiting for connection
+	private static int client_state = 0;// waiting for connection
 	private static String oldState = "";
 
 	public static void main(String[] args) throws IOException, LineUnavailableException {
@@ -49,27 +49,23 @@ public class client1 implements clientInterface {
 		InetAddress group = InetAddress.getByName("225.4.5.6");// creating a multicast IP address
 		
 		// TODO in the up coming line,write the IP of Your Machine and the multicast port which is 3456
-		InetSocketAddress socket = new InetSocketAddress("192.168.0.101", portmulticast);// the IP of this machine
+		InetSocketAddress socket = new InetSocketAddress("192.168.0.100", portmulticast);// the IP of this machine
 		InetSocketAddress mg = new InetSocketAddress(group, portmulticast);
 		NetworkInterface ni = NetworkInterface.getByInetAddress(socket.getAddress());
 		MulticastSocket multicastSocket = new MulticastSocket(socket);// opening a multicast socket port
-		multicastSocket.joinGroup(mg, ni);// subscribing the multicast IP address to that socket port,listening to the
-											// messages of that IP address from that port
+		multicastSocket.joinGroup(mg, ni);// subscribing the multicast IP address to that socket port,listening to the messages of that IP address from that port
 
 		// Sending a "CRQ Request" message to the server to ask for connection
 		byte[] byteCRQ = connectionRequest.getBytes();// Transferring the Strings to Bytes
-		DatagramPacket datagramPacketForMultiCastCRQ = new DatagramPacket(byteCRQ, byteCRQ.length, group,
-				portmulticast);// creating the packet
+		DatagramPacket datagramPacketForMultiCastCRQ = new DatagramPacket(byteCRQ, byteCRQ.length, group,portmulticast);// creating the packet
 		multicastSocket.send(datagramPacketForMultiCastCRQ);// send the packet
 
 		// the unicast part
 		int portUniCast = 20002;// receiving port
 
-		// Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means
-		// that the Server is logging in and waiting for receiving the messages from the
-		// Client side
+		// Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means that the Server is logging in and waiting for receiving the messages from the Client side
 		// TODO in the up coming line,write the IP of Your Machine and the unicast port which is 20002  
-		SocketAddress socket2 = new InetSocketAddress("192.168.0.101", portUniCast);// the IP of This Machine
+		SocketAddress socket2 = new InetSocketAddress("192.168.0.100", portUniCast);// the IP of This Machine
 		String messagerecieved = recievemessage(socket2);
 
 		System.out.println(getclientPort());
@@ -78,8 +74,7 @@ public class client1 implements clientInterface {
 		boolean test = messagerecieved.equals(serverON);
 		System.out.println(test);
 
-		// label-break statement is used to give the client a second chance to send the
-		// "servON" message
+		// label-break statement is used to give the client a second chance to send the "servON" message
 		label: {
 			int i;
 			for (i = 1; i < 100; i++) {
@@ -98,8 +93,7 @@ public class client1 implements clientInterface {
 		
 		//starting the Sound State Sending
 		do {
-			// if The Client Receives "readyToReceive" it means that the Server is Ready to
-			// Receives the Sound States
+			// if The Client Receives "readyToReceive" it means that the Server is Ready to Receives the Sound States
 			if (messagerecieved.equals(serverON)) {
 				client_state = 1; // "client_state=1"means that the server is ready for sending data
 				while (client_state == 1) {
@@ -139,7 +133,7 @@ public class client1 implements clientInterface {
 											}
 											// converting the memory elements into a One String
 											memorystring = String.join(",", memory);
-											previous_message++;//---------------------------?????
+											previous_message++;
 										}
 									} // The End of unReachable WHILE loop
 
@@ -149,7 +143,6 @@ public class client1 implements clientInterface {
 
 									// After Comparing We Will Write in The log file of the client side
 									writeToFile(dateformat, currentdate, currentState);
-									
 									
 									// send the sound state and date to the database
 									try {
@@ -183,56 +176,22 @@ public class client1 implements clientInterface {
 								e.printStackTrace();
 							}
 
-						}// The End of The "handlePitch" Override method in The
-							// PitchDetectionHandler-handler Object Class
-						
-						
-						
+						}// The End of The "handlePitch" Override method in The PitchDetectionHandler-handler Object Class
+	
 					};// The End Of The PitchDetectionHandler-handler Object Class
 					
-					//AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(44100,16384, 0);
-					//adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 44100, 16384, handler));
-					AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(16000, 400,240);
-					adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 16000, 400, handler));
+					
+					/** the dispatcher detecting and processing the sound slowly **/
+					AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(44100,16384, 0);
+					adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 44100, 16384, handler));
 					
 					
 					
-					Thread t1=new Thread(new Runnable() {
-						@Override
-						public void run() {
-							
-							
-							
-							//starting the part of the MFCC
-							//MFCC mfcc = new MFCC(16384,44100f,13,20,300f,3700f);
-							MFCC mfcc = new MFCC(400,16000f,13,20,300f,3700f);
-							adp.addAudioProcessor(mfcc);
-							adp.addAudioProcessor(new AudioProcessor() {
-						        @Override
-						        public boolean process(AudioEvent audioEvent) {
-						        		float[] mfccArrayFloat = mfcc.getMFCC();
-						        		double[] mfccArrayDouble=new double[13];
-						        		for(int k=0;k<=12;k++) {
-						        			mfccArrayDouble[k]=mfccArrayFloat[k];
-						        		}
-						        		processExcel.sendRealTime(mfccArrayDouble);
-						        		if(processExcel.arrayListMFCCReaTime.size()>=40) {
-						        		double[] mfccAverageArray=processExcel.averageAndClearRealTime();
-							        	String category=processExcel.processExcel(mfccAverageArray);
-							        	System.out.println("The Category is:"+category);
-						        		}
-							       return true;
-						        }
-						        @Override
-						        public void processingFinished() {
-						            System.out.println("DONE");
-						        }
-						    });
-							
-							
-						}
-						
-					});t1.start();
+					/** the dispatcher detecting and processing the sound fast and crashes after sometime **/
+					//AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(16000, 400,240);
+					//adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 16000, 400, handler));
+					
+					/***** the MFCC Coeff. part *****/
 					/*
 					//starting the part of the MFCC
 					MFCC mfcc = new MFCC(16384,44100f,13,20,300f,3700f);
@@ -260,25 +219,19 @@ public class client1 implements clientInterface {
 				        }
 				    });
 					
-					
 					*/
+					
 					adp.run();
-				} // --------------------------------------------------check here
+				} // End of the while loop when the client state is 1
 
-				// should we put those to conditions with the 200 message
-			} else if (messagerecieved.equals("500")) {
-				// what are we going to do here?
+			} else if (messagerecieved.equals(unknownCommandMessage)) {
 				client_state = 0;// waiting for connection
-				// Sending a "disconnectRequestMessage" message to the server like an
-				// acknowledgement,check the clientInterface
+				// Sending a "disconnectRequestMessage" message to the server like an acknowledgement
 				send(disconnectRequestMessage, serverIP, serverPort);
 			} else if (messagerecieved.equals(serverWantsDisconnect)) {// "555"message
 				// "serverWantsDiconnect" means that the server wants to disconnect
-				client_state = 2;// close and get out of the loop
-				// Disconnect message sent to the server to acknowledgement his disconnect
-				// request
+				client_state = 2;// close and get out of the loop Disconnect message sent to the server to acknowledgement his disconnect request
 				send(disconnectRequestMessage, serverIP, serverPort);
-
 			} // The End of The IF/Else condition
 
 		} while (client_state != 2);
@@ -386,6 +339,13 @@ public class client1 implements clientInterface {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+     * the method of the SQL
+     * @param Date-The Current Date
+     * @param Sound State in String Type
+     * @return Null
+     */
 	/*
 	public static Connection getConnection(String date,String soundstate) throws Exception{
 		try{ 
