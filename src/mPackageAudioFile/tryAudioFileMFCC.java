@@ -41,8 +41,8 @@ public class tryAudioFileMFCC {
 			
 		 	float sampleRate=16000f;
 		 	float framesize=0.025f;//25ms
-		    int bufferSize=Math.round(sampleRate*framesize);//400
-		    int bufferOverlap= (int) (0.015f * sampleRate);
+		    int bufferSize= Math.round(sampleRate*framesize);//400
+		    int bufferOverlap=(int) (0.015f * sampleRate);//with 240 i dont obtain the same number of the coef like in matlab
 		    
 		    //InputStream inStream=new FileInputStream("door-bell13.wav");
 		    
@@ -51,7 +51,7 @@ public class tryAudioFileMFCC {
 		    //AudioInputStream audioInputStream=AudioSystem.getAudioInputStream(soundwav);
 		    
 		    
-		    File audioFile = new File("door-bell13.wav");
+		    File audioFile = new File("traffic12.wav");
 		    AudioInputStream audioInputStream=AudioSystem.getAudioInputStream(audioFile);
 		    System.out.println("framelength"+audioInputStream.getFrameLength());
 		    System.out.println("SampleSizeInBits="+audioInputStream.getFormat().getSampleSizeInBits());
@@ -96,13 +96,13 @@ public class tryAudioFileMFCC {
 			        int i=1;
 			        @Override
 			        public boolean process(AudioEvent audioEvent) {
-			        	float[] mfccArrayFloat = mfcc.getMFCC(); 
+			        	float [] mfccArrayFloat = mfcc.getMFCC(); 
 			        	//float[] mfccArrayFloat = {43.1617f,-2.5968f,-2.9166f,-8.3133f,-10.244f,-22.6054f,-15.5679f,-2.5437f,14.0194f,7.8595f,13.7796f,8.0754f,3.9074f};
 			        	//float[] mfccArrayFloat = {55.1195f,-9.3242f,-0.5767f,3.3303f,-4.3555f,-3.0318f,2.2356f,-6.6261f,-6.8031f,-9.2916f,-6.0330f,-2.6578f,3.9958f};
 			        		
 			        	double[] mfccArrayDouble=new double[13];
 		        		for(int k=0;k<=12;k++) {
-		        			mfccArrayDouble[k]=mfccArrayFloat[k];
+		        			mfccArrayDouble[k]=mfccArrayFloat[k]*-1.0;
 		        		}
 			        	
 			        	System.out.println(mfccArrayDouble[0]+" "+mfccArrayDouble[1]+" "+mfccArrayDouble[2]+" "+mfccArrayDouble[3]+" "+mfccArrayDouble[4]+" "+mfccArrayDouble[5]+" "+mfccArrayDouble[6]+" "+mfccArrayDouble[7]+" "+mfccArrayDouble[8]+" "+mfccArrayDouble[9]+" "+mfccArrayDouble[10]+" "+mfccArrayDouble[11]+" "+mfccArrayDouble[12]);

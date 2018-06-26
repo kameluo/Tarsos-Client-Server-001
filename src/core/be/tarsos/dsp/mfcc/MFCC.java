@@ -36,7 +36,7 @@ public class MFCC implements AudioProcessor {
     protected float lowerFilterFreq; //lower limit of filter (or 64 Hz?)
     protected float upperFilterFreq; //upper limit of filter (or half of sampling freq.?)
     
-    float[] audioFloatBuffer;
+    float[] audioFloatBuffer=new float[512];
     //Er zijn evenveel mfccs als er frames zijn!?
     //Per frame zijn er dan CEPSTRA coëficienten
     private float[] mfcc;
@@ -52,11 +52,12 @@ public class MFCC implements AudioProcessor {
     }
 
     public MFCC(int samplesPerFrame, float sampleRate, int amountOfCepstrumCoef, int amountOfMelFilters, float lowerFilterFreq, float upperFilterFreq) {
-        this.samplesPerFrame = samplesPerFrame; 
+        this.samplesPerFrame = samplesPerFrame+112; // to reach 512
         this.sampleRate = sampleRate;
         this.amountOfCepstrumCoef = amountOfCepstrumCoef;
         this.amountOfMelFilters = amountOfMelFilters;
-        this.fft = new FFT(samplesPerFrame, new HammingWindow());
+        
+        this.fft = new FFT(samplesPerFrame+112, new HammingWindow());
         
         this.lowerFilterFreq = Math.max(lowerFilterFreq, 25);
         this.upperFilterFreq = Math.min(upperFilterFreq, sampleRate / 2);
@@ -65,7 +66,15 @@ public class MFCC implements AudioProcessor {
 	int i=0;
 	@Override
 	public boolean process(AudioEvent audioEvent) {
-		audioFloatBuffer = audioEvent.getFloatBuffer().clone();//something diffrent here,iam obtaining diffrenets number of frames in matlab (ex 31445)--kamel 4-5-2018
+		for(int counter=0; counter< audioEvent.getFloatBuffer().length; counter++){
+			audioFloatBuffer[counter] = audioEvent.getFloatBuffer()[counter];
+		}
+				//something diffrent here,iam obtaining diffrenets number of frames in matlab (ex 31445)--kamel 4-5-2018
+		
+			for(int counter=400; counter<512 ; counter++){
+				audioFloatBuffer[counter]=0.0f;
+			}
+			
 		System.out.println("Audio Event "+ i++);
 
         // Magnitude Spectrum

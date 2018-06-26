@@ -56,6 +56,7 @@ public class FFT {
 	 * arning: the window is not applied in reverse when a backwards transform is requested.
 	 */
 	public FFT(final int size, final WindowFunction windowFunction){
+		
 		fft = new FloatFFT(size);
 		fftSize = size;
 		this.windowFunction = windowFunction;
