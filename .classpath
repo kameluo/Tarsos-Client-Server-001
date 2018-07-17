@@ -3,10 +3,13 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/usuario/Desktop/mysql-connector-java-5.1.45-bin.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/Users/usuario/Desktop/poi-3.17.jar"/>
-	<classpathentry kind="lib" path="C:/Users/usuario/Desktop/marytts-builder-5.2-jar-with-dependencies.jar" sourcepath="/marytts"/>
-	<classpathentry kind="lib" path="C:/Users/usuario/Desktop/com.cycling74.max-5.1.9.jar"/>
-	<classpathentry kind="lib" path="C:/Users/usuario/Desktop/android-2.1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/usuario/Desktop/the java libraries/android-2.1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/usuario/Desktop/the java libraries/com.cycling74.max-5.1.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/usuario/Desktop/the java libraries/junit-4.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/usuario/Desktop/the java libraries/marytts-builder-5.2-jar-with-dependencies.jar"/>
+	<classpathentry kind="lib" path="C:/Users/usuario/Desktop/the java libraries/mysql-connector-java-5.1.45-bin.jar"/>
+	<classpathentry kind="lib" path="C:/Users/usuario/Desktop/the java libraries/poi-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/usuario/Desktop/the java libraries/poi-ooxml-3.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/usuario/Desktop/the java libraries/poi-ooxml-schemas-3.17.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

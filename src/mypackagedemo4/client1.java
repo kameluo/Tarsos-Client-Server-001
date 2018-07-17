@@ -49,7 +49,7 @@ public class client1 implements clientInterface {
 		InetAddress group = InetAddress.getByName("225.4.5.6");// creating a multicast IP address
 		
 		// TODO in the up coming line,write the IP of Your Machine and the multicast port which is 3456
-		InetSocketAddress socket = new InetSocketAddress("192.168.0.100", portmulticast);// the IP of this machine
+		InetSocketAddress socket = new InetSocketAddress("192.168.0.104", portmulticast);// the IP of this machine
 		InetSocketAddress mg = new InetSocketAddress(group, portmulticast);
 		NetworkInterface ni = NetworkInterface.getByInetAddress(socket.getAddress());
 		MulticastSocket multicastSocket = new MulticastSocket(socket);// opening a multicast socket port
@@ -65,8 +65,12 @@ public class client1 implements clientInterface {
 
 		// Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means that the Server is logging in and waiting for receiving the messages from the Client side
 		// TODO in the up coming line,write the IP of Your Machine and the unicast port which is 20002  
-		SocketAddress socket2 = new InetSocketAddress("192.168.0.100", portUniCast);// the IP of This Machine
-		String messagerecieved = recievemessage(socket2);
+		SocketAddress socket2 = new InetSocketAddress("192.168.0.104", portUniCast);// the IP of This Machine
+		
+		DatagramSocket datagramsocket = new DatagramSocket(socket2);//for reciving
+		DatagramSocket datagramSocketUniCast = new DatagramSocket();//for sending
+		
+		String messagerecieved = recievemessage(socket2,datagramsocket);
 
 		System.out.println(getclientPort());
 
@@ -80,7 +84,7 @@ public class client1 implements clientInterface {
 			for (i = 1; i < 100; i++) {
 				if (!messagerecieved.equals(serverON)) {
 					client_state = 2;// "client_state=2" means stop sending data to the server
-					String messageRecievedAgain = recievemessage(socket2);
+					String messageRecievedAgain = recievemessage(socket2,datagramsocket);
 					try {
 						TimeUnit.MINUTES.sleep(i);// delay for "i" minutes
 					} catch (InterruptedException e) {
@@ -137,7 +141,7 @@ public class client1 implements clientInterface {
 										}
 									} // The End of unReachable WHILE loop
 
-									send(currentState, serverIP, serverPort);
+									send(currentState, serverIP, serverPort,datagramSocketUniCast);
 
 									System.out.println(currentState);
 
@@ -155,20 +159,23 @@ public class client1 implements clientInterface {
 									if (previous_message != 0) {
 										// Repeat Sending The Memory 3 Times
 										for (int times = 1; times <= 3; times++) {
-											send(memorystring, serverIP, serverPort);
+											send(memorystring, serverIP, serverPort,datagramSocketUniCast);
 										} // end of the FOR loop
 									}
 									// Receiving the responded message after sending the Current state Message
 									// datagramSocketUniCast.setSoTimeout(2000);// -------------ask juan carlos
 									// about deleting this step 1-2-2018
-									String messageRecieved2 = recievemessage(socket2);
+									/*16-7-2018*/
+									 String messageRecieved2 = recievemessage(socket2,datagramsocket);
 									if (!messageRecieved2.equals(readyToReceive)) {
 										// Send Again The Current State to The Server Side
+										System.out.println("*** Sending ack...");
 										String sendcurrentState = currentState;
-										send(sendcurrentState, serverIP, serverPort);
+										send(sendcurrentState, serverIP, serverPort,datagramSocketUniCast);
 									} else if (messageRecieved2.equals(serverWantsDisconnect)) {
 										client_state = 2;// close and get out of the loop
 									}
+									
 								}
 							} catch (FileNotFoundException e) {
 								e.printStackTrace();
@@ -182,8 +189,8 @@ public class client1 implements clientInterface {
 					
 					
 					/** the dispatcher detecting and processing the sound slowly **/
-					AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(44100,16384, 0);
-					adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 44100, 16384, handler));
+					AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(44100,551, 0);
+					adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN,44100, 551, handler));
 					
 					
 					
@@ -192,10 +199,10 @@ public class client1 implements clientInterface {
 					//adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN, 16000, 400, handler));
 					
 					/***** the MFCC Coeff. part *****/
-					/*
+					
 					//starting the part of the MFCC
-					MFCC mfcc = new MFCC(16384,44100f,13,20,300f,3700f);
-					//MFCC mfcc = new MFCC(400,16000f,13,20,300f,3700f);
+					//MFCC mfcc = new MFCC(16384,44100f,13,20,300f,3700f);
+					MFCC mfcc = new MFCC(551,44100f,13,20,300f,3700f);
 					adp.addAudioProcessor(mfcc);
 					adp.addAudioProcessor(new AudioProcessor() {
 				        @Override
@@ -206,7 +213,7 @@ public class client1 implements clientInterface {
 				        			mfccArrayDouble[k]=mfccArrayFloat[k];
 				        		}
 				        		processExcel.sendRealTime(mfccArrayDouble);
-				        		if(processExcel.arrayListMFCCReaTime.size()>=40) {
+				        		if(processExcel.arrayListMFCCReaTime.size()>=80) {
 				        		double[] mfccAverageArray=processExcel.averageAndClearRealTime();
 					        	String category=processExcel.processExcel(mfccAverageArray);
 					        	System.out.println("The Category is:"+category);
@@ -219,7 +226,6 @@ public class client1 implements clientInterface {
 				        }
 				    });
 					
-					*/
 					
 					adp.run();
 				} // End of the while loop when the client state is 1
@@ -227,11 +233,11 @@ public class client1 implements clientInterface {
 			} else if (messagerecieved.equals(unknownCommandMessage)) {
 				client_state = 0;// waiting for connection
 				// Sending a "disconnectRequestMessage" message to the server like an acknowledgement
-				send(disconnectRequestMessage, serverIP, serverPort);
+				send(disconnectRequestMessage, serverIP, serverPort,datagramSocketUniCast);
 			} else if (messagerecieved.equals(serverWantsDisconnect)) {// "555"message
 				// "serverWantsDiconnect" means that the server wants to disconnect
 				client_state = 2;// close and get out of the loop Disconnect message sent to the server to acknowledgement his disconnect request
-				send(disconnectRequestMessage, serverIP, serverPort);
+				send(disconnectRequestMessage, serverIP, serverPort,datagramSocketUniCast);
 			} // The End of The IF/Else condition
 
 		} while (client_state != 2);
@@ -244,14 +250,14 @@ public class client1 implements clientInterface {
      * @param Port of the Receiver-in integer format
      * @return Null
      */
-	public static void send(String message, InetAddress IP, int Port) {
+	public static void send(String message, InetAddress IP, int Port,DatagramSocket datagramSocketUniCast) {
 		byte[] buffer = message.getBytes();// Transferring the Strings to Bytes
 		DatagramPacket datagramPacketsend = new DatagramPacket(buffer, buffer.length, IP, 20002);// creating the packet
 		datagramPacketsend.setPort(20002);
 		try {
-			DatagramSocket datagramSocketUniCast = new DatagramSocket();
+			
 			datagramSocketUniCast.send(datagramPacketsend);
-			datagramSocketUniCast.close();
+			//datagramSocketUniCast.close();
 		} catch (SocketException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -265,14 +271,14 @@ public class client1 implements clientInterface {
      * @return Received Message-in String format
      */
 	
-	public static String recievemessage(SocketAddress sockect) throws UnknownHostException {
+	public static String recievemessage(SocketAddress sockect,DatagramSocket datagramsocket) throws UnknownHostException {
 		byte[] buffer = new byte[3];
 		DatagramPacket datagrampacket = new DatagramPacket(buffer, buffer.length);
 		try {
-			DatagramSocket datagramsocket = new DatagramSocket(sockect);
+			
 			datagramsocket.setReuseAddress(true);
 			datagramsocket.receive(datagrampacket);
-			datagramsocket.close();
+			//datagramsocket.close();
 		} catch (SocketException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

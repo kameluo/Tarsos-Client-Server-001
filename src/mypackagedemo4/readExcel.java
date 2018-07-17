@@ -12,15 +12,15 @@ import marytts.util.math.MathUtils;
 
 public class readExcel {
 	
-	String[] excelSheets = {"f1.xls","f2.xls","f3.xls","f4.xls","f5.xls","f6.xls","f7.xls","f8.xls","f9.xls"};
+	String[] excelSheets = {"f1.xls","f2.xls","f3.xls","f4.xls","f5.xls"};
 	
 	//Reading All The Excel Sheets
-	static double[][][][] arraysSigmaMatrices=new double[9][30][13][13];
-	static double[][][][] arrayDeterminantSigmaMatrices=new double[9][30][1][1];
-	static double[][][][] arrayInverseSigmaMatrices=new double[9][30][13][13];
-	static double[][][][] arraysSigmaDiagonalMatrices=new double[9][30][1][13];
-	static double[][][] arraysMuMatrices=new double[9][30][13];
-	static double[][][] arraysComponentProportionalMatrices=new double[9][1][30];
+	static double[][][][] arraysSigmaMatrices=new double[5][30][13][13];
+	static double[][][][] arrayDeterminantSigmaMatrices=new double[5][30][1][1];
+	static double[][][][] arrayInverseSigmaMatrices=new double[5][30][13][13];
+	static double[][][][] arraysSigmaDiagonalMatrices=new double[5][30][1][13];
+	static double[][][] arraysMuMatrices=new double[5][30][13];
+	static double[][][] arraysComponentProportionalMatrices=new double[5][1][30];
 	
 	public void readExcelsheets() throws FileNotFoundException, IOException {
 		//String[] excelSheets = {"f1.xls","f2.xls","f3.xls","f4.xls","f5.xls","f6.xls","f7.xls","f8.xls","f9.xls"};
