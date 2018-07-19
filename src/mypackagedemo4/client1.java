@@ -37,7 +37,7 @@ public class client1 implements clientInterface {
 
 	public static void main(String[] args) throws IOException, LineUnavailableException {
 		//Extracting the data from the Excel Sheets
-		readExcel readexcel=new readExcel();
+		readExcel3Categories readexcel=new readExcel3Categories();
 		readexcel.readExcelsheets();
 		
 		// Constructing the date
@@ -49,7 +49,7 @@ public class client1 implements clientInterface {
 		InetAddress group = InetAddress.getByName("225.4.5.6");// creating a multicast IP address
 		
 		// TODO in the up coming line,write the IP of Your Machine and the multicast port which is 3456
-		InetSocketAddress socket = new InetSocketAddress("192.168.0.104", portmulticast);// the IP of this machine
+		InetSocketAddress socket = new InetSocketAddress("192.168.0.102", portmulticast);// the IP of this machine
 		InetSocketAddress mg = new InetSocketAddress(group, portmulticast);
 		NetworkInterface ni = NetworkInterface.getByInetAddress(socket.getAddress());
 		MulticastSocket multicastSocket = new MulticastSocket(socket);// opening a multicast socket port
@@ -65,7 +65,7 @@ public class client1 implements clientInterface {
 
 		// Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means that the Server is logging in and waiting for receiving the messages from the Client side
 		// TODO in the up coming line,write the IP of Your Machine and the unicast port which is 20002  
-		SocketAddress socket2 = new InetSocketAddress("192.168.0.104", portUniCast);// the IP of This Machine
+		SocketAddress socket2 = new InetSocketAddress("192.168.0.102", portUniCast);// the IP of This Machine
 		
 		DatagramSocket datagramsocket = new DatagramSocket(socket2);//for reciving
 		DatagramSocket datagramSocketUniCast = new DatagramSocket();//for sending
