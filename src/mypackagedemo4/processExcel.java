@@ -10,9 +10,7 @@ public class processExcel {
 	static int position;
 	static double logLikelihoods=0.0;
 	public static String processExcel(double[] mfccArrayDouble) {
-		
-		String[] categories={"babycrying","doorbell","footstep"};
-		
+		String[] categories={"babycrying","doorbell","doorknock"};
 		readExcel3Categories readexcel=new readExcel3Categories();
 		
 			double[] probabilityArray=new double[3];
