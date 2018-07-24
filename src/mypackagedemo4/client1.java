@@ -204,8 +204,7 @@ public class client1 implements clientInterface {
 					/***** the MFCC Coeff. part *****/
 					
 					//starting the part of the MFCC
-					//MFCC mfcc = new MFCC(200,16000f,13,20,300f,3700f);
-					MFCC mfcc = new MFCC(1102,44100f,13,20,300f,3700f);
+					MFCC mfcc = new MFCC(1102,44100f,13,20,300f,3700f);//0.025
 					adp.addAudioProcessor(mfcc);
 					adp.addAudioProcessor(new AudioProcessor() {
 				        @Override
@@ -219,6 +218,9 @@ public class client1 implements clientInterface {
 				        		if(processExcel.arrayListMFCCReaTime.size()>=1) {
 				        		double[] mfccAverageArray=processExcel.averageAndClearRealTime();
 					        	String category=processExcel.processExcel(mfccAverageArray);
+					        	
+					        	
+					        	
 					        	System.out.println("The Category is:"+category);
 				        		}
 					       return true;

@@ -30,19 +30,19 @@ static ArrayList<float[]> arraylistMFCCforOneAudioFile=new ArrayList<float[]>();
  
 public static void main(String[] args) throws UnsupportedAudioFileException, IOException {
  
-	File folderBabycrying = new File("C:\\Users\\usuario\\Desktop\\44100 pure\\baby");
+	File folderBabycrying = new File("C:\\Users\\usuario\\Desktop\\16000 pure\\baby");
 	//File folderBirds = new File("C:\\Users\\usuario\\Desktop\\categories 16000\\bird");
-	File folderDoorbell = new File("C:\\Users\\usuario\\Desktop\\44100 pure\\doorbell");
-	File folderDoorknock = new File("C:\\Users\\usuario\\Desktop\\44100 pure\\doorKnock");
+	File folderDoorbell = new File("C:\\Users\\usuario\\Desktop\\16000 pure\\doorbell");
+	File folderDoorknock = new File("C:\\Users\\usuario\\Desktop\\16000 pure\\doorKnock");
 	//File folderDooropenclose = new File("C:\\Users\\usuario\\Desktop\\categories 16000\\dooropen");
 	//File folderFootstep = new File("C:\\Users\\usuario\\Desktop\\categories 16000\\footstep");
-	File folderGlassbreaking = new File("C:\\Users\\usuario\\Desktop\\44100 pure\\glass");
+	File folderGlassbreaking = new File("C:\\Users\\usuario\\Desktop\\16000 pure\\glass");
 	//File folderScream = new File("C:\\Users\\usuario\\Desktop\\categories 16000\\shouts");
 	//File folderTraffic = new File("C:\\Users\\usuario\\Desktop\\categories 16000\\traffic");
 
 File[] folders={folderBabycrying,folderDoorbell,folderDoorknock,folderGlassbreaking};
-float sampleRate=44100;
-float framesize=0.025f;//25ms
+float sampleRate=16000;
+float framesize=0.0125f;//25ms
     int bufferSize= Math.round(sampleRate*framesize);
     int bufferOverlap=0;//(int) (0.015f * sampleRate);
    
@@ -92,7 +92,7 @@ dispatcher.addAudioProcessor(new AudioProcessor() {
  
  
 //calling the outputstream write method after finishing saving the data in rows and column and different sheets 
-FileOutputStream outputStream=new FileOutputStream("Mel Coef Excel Sheet Frames file by file 44100 0-025.xlsx");
+FileOutputStream outputStream=new FileOutputStream("Mel Coef Excel Sheet Frames file by file 16000 0-0125.xlsx");
 workbook.write(outputStream);
 outputStream.close();
 }
