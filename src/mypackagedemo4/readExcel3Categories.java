@@ -15,12 +15,12 @@ public class readExcel3Categories {
 	String[] excelSheets = {"f1.xls","f2.xls","f3.xls"};
 	
 	//Reading All The Excel Sheets
-	static double[][][][] arraysSigmaMatrices=new double[3][5][13][13];
-	static double[][][][] arrayDeterminantSigmaMatrices=new double[3][5][1][1];
-	static double[][][][] arrayInverseSigmaMatrices=new double[3][5][13][13];
-	static double[][][][] arraysSigmaDiagonalMatrices=new double[3][5][1][13];
-	static double[][][] arraysMuMatrices=new double[3][5][13];
-	static double[][][] arraysComponentProportionalMatrices=new double[3][1][5];
+	static double[][][][] arraysSigmaMatrices=new double[3][26][13][13];
+	static double[][][][] arrayDeterminantSigmaMatrices=new double[3][26][1][1];
+	static double[][][][] arrayInverseSigmaMatrices=new double[3][26][13][13];
+	static double[][][][] arraysSigmaDiagonalMatrices=new double[3][26][1][13];
+	static double[][][] arraysMuMatrices=new double[3][26][13];
+	static double[][][] arraysComponentProportionalMatrices=new double[3][1][26];
 	
 	public void readExcelsheets() throws FileNotFoundException, IOException {
 		
@@ -36,7 +36,7 @@ public class readExcel3Categories {
 	public void arraysSigmaMatrices() throws FileNotFoundException, IOException {
 		for(int catrgory = 0; catrgory < excelSheets.length; catrgory++) {
 			HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
-			for(int ngauss = 0; ngauss < 5; ngauss++){
+			for(int ngauss = 0; ngauss < 26; ngauss++){
 				String sheetname="Sigma"+(String.valueOf(ngauss+1));//adding the index to the sheet name
 	            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 				for(int row= 0; row < 13; row++) {
@@ -53,7 +53,7 @@ public class readExcel3Categories {
 	public void arrayDeterminantSigmaMatrices() throws FileNotFoundException, IOException {
 		for(int catrgory = 0; catrgory < excelSheets.length; catrgory++) {
 			HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
-			for(int ngauss = 0; ngauss < 5; ngauss++){
+			for(int ngauss = 0; ngauss < 26; ngauss++){
 				String sheetname="determinantSigma"+(String.valueOf(ngauss+1));//adding the index to the sheet name
 	            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 				int column= 0;
@@ -68,7 +68,7 @@ public class readExcel3Categories {
 	public void arrayinverseSigmaMatrices() throws FileNotFoundException, IOException {
 		for(int catrgory = 0; catrgory < excelSheets.length; catrgory++) {
 			HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
-			for(int ngauss = 0; ngauss < 5; ngauss++){
+			for(int ngauss = 0; ngauss < 26; ngauss++){
 				String sheetname="inverseSigma"+(String.valueOf(ngauss+1));//adding the index to the sheet name
 	            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 				for(int row= 0; row < 13; row++) {	
@@ -85,7 +85,7 @@ public class readExcel3Categories {
 	public void arraysSigmaDiagonalMatrices() throws FileNotFoundException, IOException {
 		for(int catrgory = 0; catrgory < excelSheets.length; catrgory++) {
 			HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
-			for(int ngauss = 0; ngauss < 5; ngauss++){
+			for(int ngauss = 0; ngauss < 26; ngauss++){
 				String sheetname="SigmaDiagonal"+(String.valueOf(ngauss+1));//adding the index to the sheet name
 	            HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
 					for(int column= 0; column < 13; column++) {
@@ -102,7 +102,7 @@ public class readExcel3Categories {
 			HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
 			String sheetname="mu";//adding the index to the sheet name
             HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
-			for(int row= 0; row < 5; row++) {
+			for(int row= 0; row < 26; row++) {
 				for(int column= 0; column < 13; column++) {
 					HSSFRow rows=sheet.getRow(row);
 					arraysMuMatrices[catrgory][row][column]=rows.getCell(column).getNumericCellValue();
@@ -116,7 +116,7 @@ public class readExcel3Categories {
 			HSSFWorkbook workbook=new HSSFWorkbook(new FileInputStream(excelSheets[catrgory]));//to be able to create everything in the excel sheet
 			String sheetname="ComponentProportion";//adding the index to the sheet name
             HSSFSheet sheet=workbook.getSheet(sheetname);//getting the sheet
-			for(int column= 0; column < 5; column++) {
+			for(int column= 0; column < 26; column++) {
 				HSSFRow rows=sheet.getRow(0);
 				arraysComponentProportionalMatrices[catrgory][0][column]=rows.getCell(column).getNumericCellValue();
 			}
@@ -145,8 +145,8 @@ public class readExcel3Categories {
 	}
 
 	public double[] getComponentProportionElement(int category) {
-		double[] componentArrayElement=new double[5];
-		for(int column=0;column<=4;column++) {
+		double[] componentArrayElement=new double[26];
+		for(int column=0;column<26;column++) {
 			componentArrayElement[column]=arraysComponentProportionalMatrices[category][0][column];
 		}
 		return componentArrayElement;

@@ -9,47 +9,44 @@ public class processExcel {
 	static ArrayList<double[]> arrayListMFCCReaTime=new ArrayList<double[]>();
 	static int position;
 	static double logLikelihoods=0.0;
+	static double tmp = 0.0;
 	public static String processExcel(double[] mfccArrayDouble) {
 		String[] categories={"babycrying","doorbell","doorknock"};
 		readExcel3Categories readexcel=new readExcel3Categories();
 		
 			double[] probabilityArray=new double[3];
 				for (int category = 0; category < categories.length; category++) {
-					double tmp = 0.0;
-					//double logLikelihoods=0.0;  
-					for (int ngauss = 0; ngauss < 5; ngauss++) {
+					for (int ngauss = 0; ngauss < 26; ngauss++) {
 						double prob1=MathUtils.getGaussianPdfValue(mfccArrayDouble,readexcel.getMuArray1d(category,ngauss),readexcel.getArrayDeterminantSigmaMatrices(category,ngauss),readexcel.getArrayInverseSigmaMatrices(category,ngauss));
-						//double prob2=MathUtils.getGaussianPdfValue(mfccArrayDouble,readexcel.getMuArray1d(category,ngauss), readexcel.getArrayInverseSigmaMatrices(category,ngauss),MathUtils.getGaussianPdfValueConstantTerm(mfccArrayDouble.length, readexcel.getArrayDeterminantSigmaMatrices(category,ngauss)));
-						//System.out.println("prooop is :" + prob1+" category:"+categories[category]);
 						double[] weights=readexcel.getComponentProportionElement(category);
-						if(prob1==Double.NaN || prob1==Double.POSITIVE_INFINITY || prob1==0.0) {
-							tmp +=0.0;
+						if(prob1==Double.NaN || prob1==Double.POSITIVE_INFINITY || prob1==Double.NEGATIVE_INFINITY ||prob1==0.0) {
+							tmp += 0.0;
+							System.out.println("temp Adds 0.0-------> "+tmp);
 						}else {
-							tmp +=weights[ngauss]*prob1;
+							tmp += weights[ngauss]*prob1;
+							System.out.println("temp add some value-------> "+tmp);
 						}
-					if(tmp==Double.NaN || tmp==Double.POSITIVE_INFINITY || tmp==0.0) 
-					{	
-						logLikelihoods+=0.0;
-					}
-					else
-					{
-						System.out.println("temp-------> "+tmp);
-						logLikelihoods+=Math.log(tmp);
-					}
+						if(tmp==Double.NaN || tmp==Double.POSITIVE_INFINITY || tmp==Double.NEGATIVE_INFINITY || tmp==0.0) 
+						{
+							logLikelihoods+=0.0;
+						}else {
+							//System.out.println("temp-------> "+tmp);
+							logLikelihoods += Math.log(tmp);
+						}
 					}//end of ngauss loop
 					//probabilityArray[category]=Math.abs(logLikelihoods);
 					probabilityArray[category]=logLikelihoods;
 					System.out.println("teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeemp"+tmp);
 					System.out.println("log of the category"+logLikelihoods);
+					tmp = 0.0;
 					logLikelihoods=0.0;
-					
 				}//end of the category loop
-				double max=probabilityArray[0];
+				double max=Math.abs(probabilityArray[0]);
 				for(int i=0;i<probabilityArray.length;i++) {
 					System.out.println("end loop is :" + probabilityArray[i]);
-			        if(max<=probabilityArray[i]) {
+			        if(max<=Math.abs(probabilityArray[i])) {
 			        	position=i;
-			            max=probabilityArray[i];
+			            max=Math.abs(probabilityArray[i]);
 			        }
 				}
 				if (max > 0.1) {
