@@ -31,6 +31,7 @@ import jvm.be.tarsos.dsp.io.jvm.AudioDispatcherFactory;
 
 
 public class client1 implements clientInterface {
+	public static final int DEFAULT_UNICAST_PORT=20002;
 
 	private static int client_state = 0;// waiting for connection
 	private static String oldState = "";
@@ -64,16 +65,16 @@ public class client1 implements clientInterface {
 		multicastSocket.send(datagramPacketForMultiCastCRQ);// send the packet
 
 		// the unicast part
-		int portUniCast = 20002;// receiving port
+		int portUniCast =DEFAULT_UNICAST_PORT; //20002;// receiving port
 
 		// Waiting and Receiving The multicast Message from The Server ("SEVRON"-->means that the Server is logging in and waiting for receiving the messages from the Client side
 		// TODO in the up coming line,write the IP of Your Machine and the unicast port which is 20002  
 		SocketAddress socket2 = new InetSocketAddress(ipLocal.getHostAddress(), portUniCast);// the IP of This Machine
 		
-		DatagramSocket datagramsocket = new DatagramSocket(socket2);//for reciving
-		DatagramSocket datagramSocketUniCast = new DatagramSocket();//for sending
+		//DatagramSocket datagramsocket = new DatagramSocket(socket2);//for reciving
+		DatagramSocket datagramSocketUniCast = new DatagramSocket(DEFAULT_UNICAST_PORT);//for sending
 		
-		String messagerecieved = recievemessage(socket2,datagramsocket);
+		String messagerecieved = recievemessage(datagramSocketUniCast);
 
 		System.out.println(getclientPort());
 
@@ -87,7 +88,7 @@ public class client1 implements clientInterface {
 			for (i = 1; i < 100; i++) {
 				if (!messagerecieved.equals(serverON)) {
 					client_state = 2;// "client_state=2" means stop sending data to the server
-					String messageRecievedAgain = recievemessage(socket2,datagramsocket);
+					String messageRecievedAgain = recievemessage(datagramSocketUniCast);
 					try {
 						TimeUnit.MINUTES.sleep(i);// delay for "i" minutes
 					} catch (InterruptedException e) {
@@ -169,7 +170,7 @@ public class client1 implements clientInterface {
 									// datagramSocketUniCast.setSoTimeout(2000);// -------------ask juan carlos
 									// about deleting this step 1-2-2018
 									/*16-7-2018*/
-									 String messageRecieved2 = recievemessage(socket2,datagramsocket);
+									 String messageRecieved2 = recievemessage(datagramSocketUniCast);
 									if (!messageRecieved2.equals(readyToReceive)) {
 										// Send Again The Current State to The Server Side
 										System.out.println("*** Sending ack...");
@@ -257,8 +258,8 @@ public class client1 implements clientInterface {
      */
 	public static void send(String message, InetAddress IP, int Port,DatagramSocket datagramSocketUniCast) {
 		byte[] buffer = message.getBytes();// Transferring the Strings to Bytes
-		DatagramPacket datagramPacketsend = new DatagramPacket(buffer, buffer.length, IP, 20002);// creating the packet
-		datagramPacketsend.setPort(20002);
+		DatagramPacket datagramPacketsend = new DatagramPacket(buffer, buffer.length, IP, DEFAULT_UNICAST_PORT);// creating the packet
+		//datagramPacketsend.setPort(60000);
 		try {
 			
 			datagramSocketUniCast.send(datagramPacketsend);
@@ -276,7 +277,7 @@ public class client1 implements clientInterface {
      * @return Received Message-in String format
      */
 	
-	public static String recievemessage(SocketAddress sockect,DatagramSocket datagramsocket) throws UnknownHostException {
+	public static String recievemessage(DatagramSocket datagramsocket) throws UnknownHostException {
 		byte[] buffer = new byte[3];
 		DatagramPacket datagrampacket = new DatagramPacket(buffer, buffer.length);
 		try {
