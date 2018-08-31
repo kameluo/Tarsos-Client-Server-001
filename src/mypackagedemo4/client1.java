@@ -164,6 +164,9 @@ public class client1 implements clientInterface {
 										// Repeat Sending The Memory 3 Times
 										for (int times = 1; times <= 3; times++) {
 											send(memorystring, serverIP, serverPort,datagramSocketUniCast);
+											client_state = 2;// close and get out of the loop Disconnect message sent to the server to acknowledgement his disconnect request
+											send(disconnectRequestMessage, serverIP, serverPort,datagramSocketUniCast);
+											
 										} // end of the FOR loop
 									}
 									// Receiving the responded message after sending the Current state Message

@@ -137,6 +137,10 @@ public class BroadcastClient implements clientInterface {
 										// Repeat Sending The Memory 3 Times
 										for (int times = 1; times <= 3; times++) {
 											send(memorystring, serverIP, serverPort,datagramSocketUniCast);
+											
+											client_state = 2;// close and get out of the loop Disconnect message sent to the server to acknowledgement his disconnect request
+											send(disconnectRequestMessage, serverIP, serverPort,datagramSocketUniCast);
+											
 										} // end of the FOR loop
 									}
 									// Receiving the responded message after sending the Current state Message
@@ -166,8 +170,8 @@ public class BroadcastClient implements clientInterface {
 					
 					
 					/** the dispatcher detecting and processing the sound slowly **/
-					AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(44100,1102, 0);
-					adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN,44100, 1102, handler));
+					AudioDispatcher adp = AudioDispatcherFactory.fromDefaultMicrophone(44100,1024, 0);//1102
+					adp.addAudioProcessor(new PitchProcessor(PitchEstimationAlgorithm.YIN,44100, 1024, handler));//1102
 					
 					/***** the MFCC Coeff. part *****/
 					//starting the part of the MFCC
